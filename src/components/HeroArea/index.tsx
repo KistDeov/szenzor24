@@ -10,7 +10,7 @@ const HeroArea = () => {
 
   return (
     <>
-      <section id="home" className="pt-[165px]">
+      <section id="home" className="pt-[165px] font-pixellari">
         <div className="container lg:max-w-[1305px] lg:px-10">
           <div className="-mx-4 flex flex-wrap items-center">
             <div className="w-full px-4 lg:w-7/12">
@@ -19,19 +19,16 @@ const HeroArea = () => {
                 data-wow-delay=".3s"
               >
                 <span className="mb-5 block text-lg leading-tight font-medium text-black sm:text-[22px] xl:text-[22px] dark:text-white">
-                  Crafted for App, Software and SaaS Sites
+                  Ai vezérelt, Automata levelezés
                 </span>
                 <h1 className="mb-6 text-3xl leading-tight font-bold text-black sm:text-[40px] md:text-[50px] lg:text-[42px] xl:text-[50px] dark:text-white">
-                  Next.js Template and SaaS
-                  <span className="bg-gradient-1 inline bg-clip-text text-transparent">
-                    {" "}
-                    Starter Kit{" "}
+                  <span className="bg-gradient-1 bg-clip-text text-transparent">
+                  Okos Mail{" "}
                   </span>
-                  Site.
+                  - Az AI által vezérelt automata levelező rendszer
                 </h1>
                 <p className="text-body mb-10 max-w-[475px] text-base leading-relaxed">
-                  Website template and starter kit crafted to build fully
-                  functional mobile app landing pages and software websites.
+                  Töltse le most, és próbálja ki INGYEN a legújabb verziót!
                 </p>
 
                 <div className="flex flex-wrap items-center">
@@ -39,29 +36,8 @@ const HeroArea = () => {
                     href="#"
                     className="mr-6 mb-6 inline-flex h-[60px] items-center rounded-lg bg-black px-[30px] py-[14px] text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
                   >
-                    <span className="border-stroke border-opacity-40 mr-[18px] border-r pr-[18px] leading-relaxed dark:border-[#BDBDBD]">
-                      Download Now
-                    </span>
                     <span>
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g clipPath="url(#clip0_3_3641)">
-                          <path
-                            d="M11.624 7.2221C10.748 7.2221 9.392 6.2261 7.964 6.2621C6.08 6.2861 4.352 7.3541 3.38 9.0461C1.424 12.4421 2.876 17.4581 4.784 20.2181C5.72 21.5621 6.824 23.0741 8.288 23.0261C9.692 22.9661 10.22 22.1141 11.924 22.1141C13.616 22.1141 14.096 23.0261 15.584 22.9901C17.096 22.9661 18.056 21.6221 18.98 20.2661C20.048 18.7061 20.492 17.1941 20.516 17.1101C20.48 17.0981 17.576 15.9821 17.54 12.6221C17.516 9.8141 19.832 8.4701 19.94 8.4101C18.62 6.4781 16.592 6.2621 15.884 6.2141C14.036 6.0701 12.488 7.2221 11.624 7.2221ZM14.744 4.3901C15.524 3.4541 16.04 2.1461 15.896 0.850098C14.78 0.898098 13.436 1.5941 12.632 2.5301C11.912 3.3581 11.288 4.6901 11.456 5.9621C12.692 6.0581 13.964 5.3261 14.744 4.3901Z"
-                            fill="currentColor"
-                          />
-                        </g>
-                        <defs>
-                          <clipPath id="clip0_3_3641">
-                            <rect width="24" height="24" fill="white" />
-                          </clipPath>
-                        </defs>
-                      </svg>
+                      Letöltés
                     </span>
                   </Link>
 
@@ -85,8 +61,8 @@ const HeroArea = () => {
                       </svg>
                     </span>
                     <span className="text-base font-medium">
-                      <span className="block text-sm"> Watch Demo </span>
-                      See how it works
+                      <span className="block text-sm"> Videó megtekintése </span>
+                      Nézd meg hogyan működik
                     </span>
                   </Link>
 

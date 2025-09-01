@@ -14,9 +14,9 @@ import { integrations } from "@integrations-config";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Appline - Next.js App & Software Template and Starter Kit",
+  title: "Okos Mail",
   description:
-    "Website template and starter kit crafted to build fully functional mobile app landing pages and software websites",
+    "AI által vezérelt automata levelező program",
 };
 
 export default function Home() {

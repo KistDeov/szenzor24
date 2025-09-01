@@ -108,16 +108,16 @@ const Header = () => {
           sticky
             ? "fixed border-b bg-white/95 backdrop-blur-xs dark:bg-black/95"
             : "absolute"
-        }`}
+  } font-pixellari`}
       >
-        <div className="relative container max-w-[1400px]">
+        <div className="relative container max-w-[1400px] font">
           <div className="flex items-center justify-between">
             <div className="block py-4 lg:py-0">
-              <Link href="/" className="block max-w-[145px] sm:max-w-[180px]">
+              <Link href="/">
                 <Image
                   width={173}
                   height={34}
-                  src={"/images/logo/logo.svg"}
+                  src={"/images/logo/Headerlogo.png"}
                   alt="Logo"
                   priority
                   className="block dark:hidden"
