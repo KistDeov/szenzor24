@@ -9,43 +9,43 @@ import { useEffect, useState } from "react";
 
 const menuData: Menu[] = [
   {
-    label: "Features",
+    label: "Jellemzők",
     route: "/#features",
   },
   {
-    label: "About",
+    label: "Rólunk",
     route: "/#about",
   },
   {
-    label: "How It Works",
+    label: "Hogyan működik",
     route: "/#work-process",
   },
   {
-    label: "Support",
+    label: "Támogatás",
     route: "/#support",
   },
   {
-    label: "Pages",
+    label: "Oldalak",
     route: "#",
     children: [
       {
-        label: "Blog Grids",
+        label: "Blog",
         route: "/blog",
       },
       {
-        label: "Docs",
+        label: "Dokumentáció",
         route: "/docs",
       },
       {
-        label: "404 Error",
+        label: "404 hiba",
         route: "/error",
       },
       {
-        label: "Sign In",
+        label: "Bejelentkezés",
         route: "/auth/signin",
       },
       {
-        label: "Sign Up",
+        label: "Regisztráció",
         route: "/auth/signup",
       },
     ],
@@ -260,7 +260,7 @@ const Header = () => {
                     onClick={() => signOut()}
                     className="bg-primary hover:bg-primary/90 rounded-md px-[30px] py-[10px] text-base font-medium text-white"
                   >
-                    Sign Out
+                    Kijelentkezés
                   </button>
                 </div>
               ) : (
@@ -269,14 +269,14 @@ const Header = () => {
                     href="/auth/signin"
                     className="hover:text-primary dark:hover:text-primary hidden px-6 py-[10px] text-base font-medium text-black sm:inline-block dark:text-white"
                   >
-                    Sign In
+                    Bejelentkezés
                   </Link>
 
                   <Link
                     href="/auth/signup"
                     className="bg-primary hover:bg-primary/90 hidden rounded-md px-[30px] py-[10px] text-base font-medium text-white sm:inline-block"
                   >
-                    Sign Up
+                    Regisztráció
                   </Link>
                 </>
               )}
