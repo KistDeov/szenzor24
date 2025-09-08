@@ -24,15 +24,15 @@ export default function Home() {
     <main>
       <HeroArea />
       <Features />
-      <About />
+      {/*<About />*/}
       <WorkProcess />
       <Pricing />
       <Screens />
-      <Cta />
+      {/*<Cta />
       <Testimonials />
       <Faq />
       {integrations.isSanityEnabled && <Blog />}
-      <Clients />
+      <Clients />*/}
       <Contact />
     </main>
   );

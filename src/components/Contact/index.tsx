@@ -8,12 +8,10 @@ const Contact = () => {
             data-wow-delay=".2s"
           >
             <h2 className="mb-4 text-3xl font-bold text-black sm:text-4xl md:text-[44px] md:leading-tight dark:text-white">
-              Let&apos;s Stay Connected
+              Lépj velünk kapcsolatba
             </h2>
             <p className="text-body text-base">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
-              convallis tortor eros. Donec vitae tortor lacus. Phasellus aliquam
-              ante in maximus.
+              Írj nekünk üzenetet, ha bármivel kapcsolatban kérdésed, meglátásod van és hamarosan válaszolunk. Nekünk számít a véleményed!
             </p>
           </div>
         </div>
@@ -31,7 +29,7 @@ const Contact = () => {
                       type="text"
                       name="name"
                       id="name"
-                      placeholder="Enter your name"
+                      placeholder="Teljes név"
                       className="border-stroke text-body focus:border-primary dark:focus:border-primary w-full rounded-sm border bg-white px-[30px] py-4 text-base outline-hidden dark:border-[#34374A] dark:bg-[#2A2E44]"
                     />
                   </div>
@@ -43,7 +41,7 @@ const Contact = () => {
                       type="text"
                       name="company"
                       id="company"
-                      placeholder="Comapy (optioanl)"
+                      placeholder="Cégnév (opcionális)"
                       className="border-stroke text-body focus:border-primary dark:focus:border-primary w-full rounded-sm border bg-white px-[30px] py-4 text-base outline-hidden dark:border-[#34374A] dark:bg-[#2A2E44]"
                     />
                   </div>
@@ -55,7 +53,7 @@ const Contact = () => {
                       type="email"
                       name="email"
                       id="email"
-                      placeholder="Enter Your email"
+                      placeholder="Email cím"
                       className="border-stroke text-body focus:border-primary dark:focus:border-primary w-full rounded-sm border bg-white px-[30px] py-4 text-base outline-hidden dark:border-[#34374A] dark:bg-[#2A2E44]"
                     />
                   </div>
@@ -67,7 +65,7 @@ const Contact = () => {
                       type="text"
                       name="phone"
                       id="phone"
-                      placeholder="Enter your Phone Number"
+                      placeholder="Telefonszám"
                       className="border-stroke text-body focus:border-primary dark:focus:border-primary w-full rounded-sm border bg-white px-[30px] py-4 text-base outline-hidden dark:border-[#34374A] dark:bg-[#2A2E44]"
                     />
                   </div>
@@ -79,7 +77,7 @@ const Contact = () => {
                       rows={6}
                       name="message"
                       id="message"
-                      placeholder="Tell us about yourself"
+                      placeholder="Üzenet"
                       className="border-stroke text-body focus:border-primary dark:focus:border-primary w-full rounded-sm border bg-white px-[30px] py-4 text-base outline-hidden dark:border-[#34374A] dark:bg-[#2A2E44]"
                     ></textarea>
                   </div>
@@ -88,14 +86,13 @@ const Contact = () => {
                 <div className="w-full px-[22px]">
                   <div className="text-center">
                     <p className="text-body mb-5 text-center text-base">
-                      By clicking contact us button, you agree our terms and
-                      policy,
+                     A "Küldés" gombra kattintva elfogadod az Adatvédelmi tájékoztatónkat.
                     </p>
                     <button
                       type="submit"
                       className="bg-primary hover:bg-primary/90 inline-block rounded-md px-11 py-[14px] text-base font-medium text-white"
                     >
-                      Contact Us
+                      Küldés
                     </button>
                   </div>
                 </div>

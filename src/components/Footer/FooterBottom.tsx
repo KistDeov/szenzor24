@@ -16,10 +16,11 @@ const FooterBottom = () => {
             <div className="w-full px-3 md:w-1/2 lg:w-1/3">
               <div className="mb-4 flex items-center justify-center space-x-5 md:mb-0 md:justify-start lg:justify-center">
                 <Link
-                  href="#"
+                  href="https://www.facebook.com/CharterInformatika"
                   className="text-white opacity-70 hover:opacity-100"
                   name="social icon"
                   aria-label="social icon"
+                  target="_blank"
                 >
                   <svg
                     width="24"
@@ -41,7 +42,7 @@ const FooterBottom = () => {
                     </defs>
                   </svg>
                 </Link>
-
+                {/*
                 <Link
                   href="#"
                   className="text-white opacity-70 hover:opacity-100"
@@ -121,7 +122,7 @@ const FooterBottom = () => {
                       </clipPath>
                     </defs>
                   </svg>
-                </Link>
+                </Link>*/}
               </div>
             </div>
 

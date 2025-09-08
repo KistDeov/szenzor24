@@ -94,7 +94,9 @@ const footerNavData: FooterMenu[] = [
 const Footer = () => {
   return (
     <>
+    
       <footer>
+        {/* 
         <div className="bg-[#F8FAFB] pb-[46px] pt-[95px] dark:bg-[#15182A]">
           <div className="container max-w-[1390px]">
             <div className="-mx-4 flex flex-wrap">
@@ -160,7 +162,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-
+        */}
         <FooterBottom />
       </footer>
     </>

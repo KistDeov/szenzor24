@@ -25,9 +25,9 @@ const workProcessData: Feature[] = [
         </defs>
       </svg>
     ),
-    title: "Install the App",
+    title: "Telepítsd a szoftvert",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In convallis tortor.",
+      "Próbáld ki az ingyenes verziót, és később frissíthetsz a számodra legkedvezőbb csomagra.",
   },
   {
     icon: (
@@ -51,9 +51,9 @@ const workProcessData: Feature[] = [
         </defs>
       </svg>
     ),
-    title: "Setup your profile",
+    title: "Állítsd be a fiókodat",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In convallis tortor.",
+      "Állítsd be azt az email fiókot, amelyről az automata levelezést szeretnéd végezni.",
   },
   {
     icon: (
@@ -77,9 +77,9 @@ const workProcessData: Feature[] = [
         </defs>
       </svg>
     ),
-    title: "Enjoy the features!",
+    title: "Élvezd a kényelmet!",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In convallis tortor.",
+      "Hagyd, hogy az AI foglalkozzon a levelezéssel, miközben te arra koncetrálsz ami igazán számít!",
   },
 ];
 
@@ -93,12 +93,11 @@ const WorkProcess = () => {
             data-wow-delay=".2s"
           >
             <h2 className="mb-4 text-3xl font-bold text-black dark:text-white sm:text-4xl md:text-[44px] md:leading-tight">
-              How it Works?
+              Hogyan működik?
             </h2>
             <p className="text-base text-body">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
-              convallis tortor eros. Donec vitae tortor lacus. Phasellus aliquam
-              ante in maximus.
+              Tedd egyszerűbbé az életed azáltal, hogy az AI-ra bízod a
+              levelezést! Kövesd az egyszerű lépéseket, és élvezd a kényelmet!
             </p>
           </div>
         </div>

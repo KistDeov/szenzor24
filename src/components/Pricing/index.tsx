@@ -18,12 +18,11 @@ const Pricing = () => {
             data-wow-delay=".2s"
           >
             <h2 className="mb-4 text-3xl font-bold text-black dark:text-white sm:text-4xl md:text-[44px] md:leading-tight">
-              Choose Your Plan
+              Válassz csomagot
             </h2>
             <p className="text-base text-body">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
-              convallis tortor eros. Donec vitae tortor lacus. Phasellus aliquam
-              ante in maximus.
+              Válaszd ki a számodra, vagy a vállalkozásod számára legmegfelelőbb
+              csomagot! Bármikor válthatsz, nincs hűségidő!
             </p>
           </div>
         </div>
@@ -42,7 +41,7 @@ const Pricing = () => {
                 onClick={() => setPlanType(!planType)}
               />
               <span className="monthly text-sm font-medium text-black dark:text-white">
-                Monthly
+                Havi
               </span>
               <span className="mx-5 flex h-[34px] w-[60px] cursor-pointer items-center rounded-full bg-primary p-[3px]">
                 <span
@@ -50,7 +49,7 @@ const Pricing = () => {
                 ></span>
               </span>
               <span className="yearly text-sm font-medium text-black dark:text-white">
-                Yearly
+                  Éves
               </span>
             </label>
           </div>

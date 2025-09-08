@@ -13,43 +13,17 @@ const menuData: Menu[] = [
     route: "/#features",
   },
   {
-    label: "Rólunk",
-    route: "/#about",
-  },
-  {
     label: "Hogyan működik",
     route: "/#work-process",
   },
   {
-    label: "Támogatás",
-    route: "/#support",
+    label: "Képek",
+    route: "/#screens",
   },
   {
-    label: "Oldalak",
-    route: "#",
-    children: [
-      {
-        label: "Blog",
-        route: "/blog",
-      },
-      {
-        label: "Dokumentáció",
-        route: "/docs",
-      },
-      {
-        label: "404 hiba",
-        route: "/error",
-      },
-      {
-        label: "Bejelentkezés",
-        route: "/auth/signin",
-      },
-      {
-        label: "Regisztráció",
-        route: "/auth/signup",
-      },
-    ],
-  },
+    label: "Kapcsolat",
+    route: "/#support",
+  }
 ];
 
 const Header = () => {
@@ -115,18 +89,18 @@ const Header = () => {
             <div className="block py-4 lg:py-0">
               <Link href="/">
                 <Image
-                  width={173}
-                  height={34}
-                  src={"/images/logo/Headerlogo.png"}
+                  width={216}
+                  height={43}
+                  src={"/images/logo/Headerlogo_light.png"}
                   alt="Logo"
                   priority
                   className="block dark:hidden"
                   style={{ width: "auto", height: "auto" }}
                 />
                 <Image
-                  width={173}
-                  height={34}
-                  src={"/images/logo/logo-white.svg"}
+                  width={216}
+                  height={43}
+                  src={"/images/logo/Headerlogo.png"}
                   alt="Logo"
                   priority
                   className="hidden dark:block"

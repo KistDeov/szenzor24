@@ -25,9 +25,9 @@ const featuresData: Feature[] = [
         </defs>
       </svg>
     ),
-    title: "For Functional App Sites",
+    title: "Automata válaszküldés",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In convallis tortor.",
+      "Tanítható AI válaszol helyetted a leveleidre, így időt és energiát spórolhatsz meg.",
   },
   {
     icon: (
@@ -55,9 +55,9 @@ const featuresData: Feature[] = [
         </defs>
       </svg>
     ),
-    title: "High-quality Design",
+    title: "Saját adatbázis",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In convallis tortor.",
+      "Könnyedén beemelheted már meglévő adatbázisodat, ezzel tanítva az AI-t a számodra fontos információkra.",
   },
   {
     icon: (
@@ -85,9 +85,9 @@ const featuresData: Feature[] = [
         </defs>
       </svg>
     ),
-    title: "Essential Integrations",
+    title: "Könnyen használható",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In convallis tortor.",
+      "A szoftver egyszerű felépítése miatt, bárki könnyedén használhatja, függetlenül a technikai tudásától.",
   },
   {
     icon: (
@@ -115,9 +115,9 @@ const featuresData: Feature[] = [
         </defs>
       </svg>
     ),
-    title: "Essential Components",
+    title: "Gyors és egyszerű",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In convallis tortor.",
+      "Az AI másodpercek alatt elkészíti a választ a beérkezett levelekre, és küldi el automatikusan.",
   },
   {
     icon: (
@@ -141,9 +141,9 @@ const featuresData: Feature[] = [
         </defs>
       </svg>
     ),
-    title: "Fully Customizable",
+    title: "Személyre szabható",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In convallis tortor.",
+      "Állítsd be a számodra megfelelőbb, stílust, megszólítást, szövegezést, üdvözlést a levelezésedhez.",
   },
   {
     icon: (
@@ -171,9 +171,9 @@ const featuresData: Feature[] = [
         </defs>
       </svg>
     ),
-    title: "Regular Free Updates",
+    title: "Folyamatos fejlesztés",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In convallis tortor.",
+      "Ha már egyszer letöltötted, mindig elérhetőek lesznek számodra a csomagod legújabb frissítései.",
   },
 ];
 
@@ -187,12 +187,11 @@ const Features = () => {
             data-wow-delay=".2s"
           >
             <h2 className="mb-4 text-3xl font-bold text-black dark:text-white sm:text-4xl md:text-[44px] md:leading-tight">
-              Full-Featured Next.js Starter Kit
+              AI-vezérelt funkciók, melyek megkönnyítik a levelezésedet
             </h2>
             <p className="text-base text-body">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
-              convallis tortor eros. Donec vitae tortor lacus. Phasellus aliquam
-              ante in maximus.
+              Vess véget a monoton levelezési feladatoknak, fedezd fel, és használd ki a
+              AI-vezérelt levelezező rendszerünk előnyeit, funkcióit.
             </p>
           </div>
         </div>

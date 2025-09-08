@@ -17,19 +17,18 @@ const Screens = () => {
             data-wow-delay=".2s"
           >
             <h2 className="mb-4 text-3xl font-bold text-black sm:text-4xl md:text-[44px] md:leading-tight dark:text-white">
-              App Screenshots
+              Szoftver képernyőképek
             </h2>
             <p className="text-body text-base">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
-              convallis tortor eros. Donec vitae tortor lacus. Phasellus aliquam
-              ante in maximus.
+              Tekintsd meg a modern és felhasználóbarát felületet, amely
+              megkönnyíti a mindennapi levelezési feladatokat.
             </p>
           </div>
         </div>
 
         <div className="container">
           <div
-            className="wow fadeInUp mx-auto max-w-[1000px]"
+            className="wow fadeInUp mx-auto max-w-[900px]"
             data-wow-delay=".2s"
           >
             <Swiper
@@ -40,103 +39,102 @@ const Screens = () => {
                 prevEl: ".swiper-button-prev",
               }}
               loop={true}
+              slidesPerView={1}
+              spaceBetween={40}
               breakpoints={{
                 640: {
                   slidesPerView: 1,
                 },
-                768: {
-                  slidesPerView: 3,
-                  spaceBetween: 40,
-                },
                 1024: {
-                  slidesPerView: 3,
+                  slidesPerView: 1,
                   spaceBetween: 40,
                 },
               }}
             >
-              <div className="absolute top-0 right-0 left-0 z-50 mx-auto w-full md:w-1/3">
-                <Image
-                  width={288}
-                  height={594}
-                  src={"/images/screens/mobile-frame.png"}
-                  alt="mobile-frame"
-                  className="mx-auto max-w-full"
-                />
-              </div>
+       
 
+
+              {/* Slide 1: level_szerkeztes */}
               <SwiperSlide>
-                <div className="xs:max-w-[265px] mx-auto w-full max-w-[252px]">
+                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px]">
                   <Image
-                    width={265}
-                    height={573}
-                    src={"/images/screens/screen-1-light.png"}
-                    alt="screenshot"
-                    className="mx-auto w-full rounded-2xl"
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/level_szerkesztes_dark.png"}
+                    alt="screenshot 1"
+                    className="mx-auto w-full rounded-2xl block dark:hidden"
+                  />
+                  <Image
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/level_szerkeztes_light.png"}
+                    alt="screenshot 1 dark"
+                    className="mx-auto w-full rounded-2xl hidden dark:block"
                   />
                 </div>
               </SwiperSlide>
 
+              {/* Slide 2: fooldal */}
               <SwiperSlide>
-                <div className="xs:max-w-[265px] mx-auto w-full max-w-[252px]">
+                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px]">
                   <Image
-                    width={265}
-                    height={573}
-                    src={"/images/screens/screen-2-light.png"}
-                    alt="screenshot"
-                    className="mx-auto w-full rounded-2xl"
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/fooldal_dark.png"}
+                    alt="screenshot 2"
+                    className="mx-auto w-full rounded-2xl block dark:hidden"
+                  />
+                  <Image
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/fooldal_light.png"}
+                    alt="screenshot 2 dark"
+                    className="mx-auto w-full rounded-2xl hidden dark:block"
                   />
                 </div>
               </SwiperSlide>
 
+              {/* Slide 3: level_szerkezet */}
               <SwiperSlide>
-                <div className="xs:max-w-[265px] mx-auto w-full max-w-[252px]">
+                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px]">
                   <Image
-                    width={265}
-                    height={573}
-                    src={"/images/screens/screen-3-light.png"}
-                    alt="screenshot"
-                    className="mx-auto w-full rounded-2xl"
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/level_szerkezet_dark.png"}
+                    alt="screenshot 3"
+                    className="mx-auto w-full rounded-2xl block dark:hidden"
+                  />
+                  <Image
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/level_szerkezet_light.png"}
+                    alt="screenshot 3 dark"
+                    className="mx-auto w-full rounded-2xl hidden dark:block"
                   />
                 </div>
               </SwiperSlide>
 
+              {/* Slide 4: level_be */}
               <SwiperSlide>
-                <div className="xs:max-w-[265px] mx-auto w-full max-w-[252px]">
+                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px]">
                   <Image
-                    width={265}
-                    height={573}
-                    src={"/images/screens/screen-1-light.png"}
-                    alt="screenshot"
-                    className="mx-auto w-full rounded-2xl"
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/level_be_dark.png"}
+                    alt="screenshot 4"
+                    className="mx-auto w-full rounded-2xl block dark:hidden"
+                  />
+                  <Image
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/level_be_light.png"}
+                    alt="screenshot 4 dark"
+                    className="mx-auto w-full rounded-2xl hidden dark:block"
                   />
                 </div>
               </SwiperSlide>
 
-              <SwiperSlide>
-                <div className="xs:max-w-[265px] mx-auto w-full max-w-[252px]">
-                  <Image
-                    width={265}
-                    height={573}
-                    src={"/images/screens/screen-2-light.png"}
-                    alt="screenshot"
-                    className="mx-auto w-full rounded-2xl"
-                  />
-                </div>
-              </SwiperSlide>
-
-              <SwiperSlide>
-                <div className="xs:max-w-[265px] mx-auto w-full max-w-[252px]">
-                  <Image
-                    width={265}
-                    height={573}
-                    src={"/images/screens/screen-3-light.png"}
-                    alt="screenshot"
-                    className="mx-auto w-full rounded-2xl"
-                  />
-                </div>
-              </SwiperSlide>
-
-              <div className="flex items-center justify-center gap-x-4 pt-20">
+              <div className="flex items-center justify-center gap-x-4 pt-10">
                 <button className="swiper-button-prev">
                   <svg
                     width="20"

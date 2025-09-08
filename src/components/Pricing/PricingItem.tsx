@@ -29,9 +29,9 @@ export const PricingItem = ({ price, planType }: any) => {
   return (
     <div className="w-full px-6 md:w-1/2 lg:w-1/3">
       <div className="wow fadeInUp shadow-card dark:bg-dark dark:shadow-card-dark relative mb-10 rounded-xl bg-white px-9 py-10 lg:mb-4 lg:px-7 xl:px-9">
-        {price.nickname === "Unlimited" && (
+        {price.nickname === "Korlátlan" && (
           <span className="text-primary absolute top-5 right-5 text-sm font-medium underline">
-            Most popular
+              Legnépszerűbb
           </span>
         )}
 
@@ -39,12 +39,12 @@ export const PricingItem = ({ price, planType }: any) => {
           {price.nickname}
         </h3>
         <p className="text-body mb-7 text-base">
-          Lorem Ipsum is simply dummythe.
+          Rövid csomagleírás ide jöhet
         </p>
 
         <p className="border-stroke dark:border-stroke-dark border-b pb-5 text-black dark:text-white">
           <span className="text-[40px] leading-none font-bold">
-            <sup className="text-[22px] font-medium"> $ </sup>
+            <sup className="text-[22px] font-medium"> Ft </sup>
 
             {planType
               ? ((price.unit_amount / 100) * 12).toLocaleString("en-US", {
@@ -56,7 +56,7 @@ export const PricingItem = ({ price, planType }: any) => {
           </span>
           <span className="text-body text-base">
             {" "}
-            / {planType ? "year" : "month"}{" "}
+            / {planType ? "év" : "hó"}{" "}
           </span>
         </p>
 
@@ -83,7 +83,7 @@ export const PricingItem = ({ price, planType }: any) => {
                 </defs>
               </svg>
             </span>
-            60-day chat history
+            100 db AI által generált üzenet
           </p>
           <p className="dark:text-body flex text-base text-black">
             <span className="mt-1 mr-[10px]">
@@ -107,7 +107,7 @@ export const PricingItem = ({ price, planType }: any) => {
                 </defs>
               </svg>
             </span>
-            35 GB cloud storage
+            1 db email cím
           </p>
           <p className="dark:text-body flex text-base text-black">
             <span className="mt-1 mr-[10px]">
@@ -131,7 +131,7 @@ export const PricingItem = ({ price, planType }: any) => {
                 </defs>
               </svg>
             </span>
-            24/7 Support
+            Távsegítség
           </p>
           <p className="dark:text-body flex text-base text-black">
             <span className="mt-1 mr-[10px]">
@@ -155,7 +155,7 @@ export const PricingItem = ({ price, planType }: any) => {
                 </defs>
               </svg>
             </span>
-            Custom Branding Strategy
+            Személyre szabott AI
           </p>
         </div>
 
@@ -164,7 +164,7 @@ export const PricingItem = ({ price, planType }: any) => {
           onClick={handleSubscription}
           className={`block w-full rounded-md px-8 py-[10px] text-center text-base font-medium text-white ${price.nickname === "Unlimited" ? "bg-primary hover:bg-primary/90" : "hover:bg-primary dark:hover:bg-primary bg-black dark:bg-[#2A2E44]"}`}
         >
-          Choose Plan
+          Előfizetek
         </button>
       </div>
     </div>
