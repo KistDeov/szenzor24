@@ -86,7 +86,7 @@ const Contact = () => {
                 <div className="w-full px-[22px]">
                   <div className="text-center">
                     <p className="text-body mb-5 text-center text-base">
-                     A "Küldés" gombra kattintva elfogadod az Adatvédelmi tájékoztatónkat.
+                    A Küldés gombra kattintva elfogadod az Adatvédelmi tájékoztatónkat.
                     </p>
                     <button
                       type="submit"
