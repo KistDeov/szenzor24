@@ -6,8 +6,17 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useRef } from "react";
+import type { Swiper as SwiperType } from 'swiper';
 
 const Screens = () => {
+  const swiperRef = useRef<SwiperType | null>(null);
+  // Helper to update Swiper height after image load
+  const handleImageLoad = () => {
+    if (swiperRef.current) {
+      swiperRef.current.update();
+    }
+  };
   return (
     <>
       <section id="screens" className="relative z-20 pt-[110px]">
@@ -41,6 +50,7 @@ const Screens = () => {
               loop={true}
               slidesPerView={1}
               spaceBetween={40}
+              autoHeight={true}
               breakpoints={{
                 640: {
                   slidesPerView: 1,
@@ -50,86 +60,97 @@ const Screens = () => {
                   spaceBetween: 40,
                 },
               }}
+              onSwiper={(swiper) => {
+                swiperRef.current = swiper;
+              }}
             >
        
 
 
               {/* Slide 1: level_szerkeztes */}
               <SwiperSlide>
-                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px]">
-                  <Image
-                    width={900}
-                    height={1800}
-                    src={"/images/screens/level_szerkesztes_dark.png"}
-                    alt="screenshot 1"
-                    className="mx-auto w-full rounded-2xl block dark:hidden"
-                  />
-                  <Image
-                    width={900}
-                    height={1800}
-                    src={"/images/screens/level_szerkeztes_light.png"}
-                    alt="screenshot 1 dark"
-                    className="mx-auto w-full rounded-2xl hidden dark:block"
-                  />
-                </div>
-              </SwiperSlide>
-
-              {/* Slide 2: fooldal */}
-              <SwiperSlide>
-                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px]">
+                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px] mb-0">
                   <Image
                     width={900}
                     height={1800}
                     src={"/images/screens/fooldal_dark.png"}
                     alt="screenshot 2"
-                    className="mx-auto w-full rounded-2xl block dark:hidden"
+                    className="mx-auto w-full rounded-2xl block dark:hidden mb-0"
+                    onLoad={handleImageLoad}
                   />
                   <Image
                     width={900}
                     height={1800}
                     src={"/images/screens/fooldal_light.png"}
                     alt="screenshot 2 dark"
-                    className="mx-auto w-full rounded-2xl hidden dark:block"
+                    className="mx-auto w-full rounded-2xl hidden dark:block mb-0"
+                    onLoad={handleImageLoad}
                   />
                 </div>
               </SwiperSlide>
 
+              {/* Slide 2: fooldal */}
+              <SwiperSlide>
+                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px] mb-0">
+                  <Image
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/level_szerkesztes_dark.png"}
+                    alt="screenshot 1"
+                    className="mx-auto w-full rounded-2xl block dark:hidden mb-0"
+                    onLoad={handleImageLoad}
+                  />
+                  <Image
+                    width={900}
+                    height={1800}
+                    src={"/images/screens/level_szerkeztes_light.png"}
+                    alt="screenshot 1 dark"
+                    className="mx-auto w-full rounded-2xl hidden dark:block mb-0"
+                    onLoad={handleImageLoad}
+                  />
+                </div>
+              </SwiperSlide>
+              
               {/* Slide 3: level_szerkezet */}
               <SwiperSlide>
-                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px]">
+                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px] mb-0">
                   <Image
                     width={900}
                     height={1800}
                     src={"/images/screens/level_szerkezet_dark.png"}
                     alt="screenshot 3"
-                    className="mx-auto w-full rounded-2xl block dark:hidden"
+                    className="mx-auto w-full rounded-2xl block dark:hidden mb-0"
+                    onLoad={handleImageLoad}
                   />
                   <Image
                     width={900}
                     height={1800}
                     src={"/images/screens/level_szerkezet_light.png"}
                     alt="screenshot 3 dark"
-                    className="mx-auto w-full rounded-2xl hidden dark:block"
+                    className="mx-auto w-full rounded-2xl hidden dark:block mb-0"
+                    onLoad={handleImageLoad}
                   />
                 </div>
               </SwiperSlide>
 
               {/* Slide 4: level_be */}
               <SwiperSlide>
-                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px]">
+                <div className="xs:max-w-[1800px] mx-auto w-full max-w-[900px] mb-0">
                   <Image
                     width={900}
                     height={1800}
                     src={"/images/screens/level_be_dark.png"}
                     alt="screenshot 4"
-                    className="mx-auto w-full rounded-2xl block dark:hidden"
+                    className="mx-auto w-full rounded-2xl block dark:hidden mb-0"
+                    onLoad={handleImageLoad}
                   />
                   <Image
                     width={900}
                     height={1800}
                     src={"/images/screens/level_be_light.png"}
                     alt="screenshot 4 dark"
-                    className="mx-auto w-full rounded-2xl hidden dark:block"
+                    className="mx-auto w-full rounded-2xl hidden dark:block mb-0"
+                    onLoad={handleImageLoad}
                   />
                 </div>
               </SwiperSlide>
