@@ -196,7 +196,7 @@ const Header = () => {
             </div>
 
             <div className="mr-[60px] flex items-center justify-end lg:mr-0">
-              <button
+              {/*<button
                 onClick={() => setSearchModalOpen(true)}
                 className="mr-4 hidden h-[38px] w-[38px] items-center justify-center rounded-full bg-white text-black sm:flex dark:bg-black dark:text-white"
               >
@@ -224,7 +224,7 @@ const Header = () => {
                     </clipPath>
                   </defs>
                 </svg>
-              </button>
+              </button>*/}
 
               <DarkModeSwitcher />
 
