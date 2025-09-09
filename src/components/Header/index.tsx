@@ -84,7 +84,7 @@ const Header = () => {
             : "absolute"
   } font-pixellari`}
       >
-        <div className="relative container max-w-[1400px] font">
+        <div className="relative container max-w-[1300px] font">
           <div className="flex items-center justify-between">
             <div className="block py-4 lg:py-0">
               <Link href="/">
