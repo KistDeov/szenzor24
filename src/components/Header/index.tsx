@@ -84,13 +84,13 @@ const Header = () => {
             : "absolute"
   } font-pixellari`}
       >
-        <div className="relative container max-w-[1300px] font">
+        <div className="relative container max-w-[1400px] font">
           <div className="flex items-center justify-between">
             <div className="block py-4 lg:py-0">
               <Link href="/">
                 <Image
-                  width={216}
-                  height={43}
+                  width={160}
+                  height={32}
                   src={"/images/logo/Headerlogo_light.png"}
                   alt="Logo"
                   priority
@@ -98,8 +98,8 @@ const Header = () => {
                   style={{ width: "auto", height: "auto" }}
                 />
                 <Image
-                  width={216}
-                  height={43}
+                  width={160}
+                  height={32}
                   src={"/images/logo/Headerlogo.png"}
                   alt="Logo"
                   priority
