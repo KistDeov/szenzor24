@@ -1,7 +1,7 @@
 const Contact = () => {
   return (
     <>
-      <section id="support" className="pt-[100px] pb-[110px]">
+      <section id="support" className="pt-[100px] pb-[110px] font-pixellari">
         <div className="container">
           <div
             className="wow fadeInUp mx-auto mb-10 max-w-[690px] text-center"

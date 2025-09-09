@@ -11,7 +11,7 @@ const Pricing = () => {
 
   return (
     <>
-      <section id="pricing" className="relative z-10 pt-[110px]">
+      <section id="pricing" className="relative z-10 pt-[110px] font-pixellari">
         <div className="container">
           <div
             className="wow fadeInUp mx-auto mb-10 max-w-[690px] text-center"

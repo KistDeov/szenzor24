@@ -40,7 +40,7 @@ const GlobalSearchModal = (props: Props) => {
   if (!searchModalOpen) return null;
 
   return (
-    <div className="fixed top-0 left-0 z-99999 flex h-full min-h-screen w-full justify-center bg-[rgba(94,93,93,0.25)] px-4 py-[12vh] backdrop-blur-xs">
+    <div className="fixed top-0 left-0 z-99999 flex h-full min-h-screen w-full justify-center bg-[rgba(94,93,93,0.25)] px-4 py-[12vh] backdrop-blur-xs font-pixellari">
       <div className="modal-content relative z-20 flex w-full max-w-[600px] flex-col overflow-clip rounded-xl bg-white shadow-lg dark:bg-black">
         <InstantSearch
           insights={false}

@@ -4,7 +4,7 @@ import Link from "next/link";
 const FooterBottom = () => {
   return (
     <>
-      <div className="bg-primary py-7 dark:bg-black">
+      <div className="bg-primary py-7 dark:bg-black font-pixellari">
         <div className="container max-w-[1390px]">
           <div className="-mx-3 flex flex-wrap">
             <div className="order-last w-full px-3 lg:order-first lg:w-1/3">

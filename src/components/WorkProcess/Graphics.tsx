@@ -3,7 +3,7 @@ import React from "react";
 const Graphics = () => {
   return (
     <>
-      <div className="absolute -top-28 left-0 -z-10 hidden md:block">
+      <div className="absolute -top-28 left-0 -z-10 hidden md:block ">
         <svg
           width="632"
           height="1179"

@@ -17,6 +17,10 @@ const menuData: Menu[] = [
     route: "/#work-process",
   },
   {
+    label: "Letöltés",
+    route: "/#pricing",
+  },
+  {
     label: "Képek",
     route: "/#screens",
   },

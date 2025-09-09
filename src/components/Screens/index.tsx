@@ -19,7 +19,7 @@ const Screens = () => {
   };
   return (
     <>
-      <section id="screens" className="relative z-20 pt-[110px]">
+      <section id="screens" className="relative z-20 pt-[110px] font-pixellari">
         <div className="container">
           <div
             className="wow fadeInUp mx-auto mb-10 max-w-[690px] text-center"
