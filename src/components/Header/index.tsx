@@ -89,8 +89,8 @@ const Header = () => {
             <div className="block py-4 lg:py-0">
               <Link href="/">
                 <Image
-                  width={186}
-                  height={38}
+                  width={216}
+                  height={43}
                   src={"/images/logo/Headerlogo_light.png"}
                   alt="Logo"
                   priority
@@ -98,8 +98,8 @@ const Header = () => {
                   style={{ width: "auto", height: "auto" }}
                 />
                 <Image
-                  width={186}
-                  height={38}
+                  width={216}
+                  height={43}
                   src={"/images/logo/Headerlogo.png"}
                   alt="Logo"
                   priority
