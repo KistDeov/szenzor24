@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { PropsWithChildren } from "react";
 
 const LINKS = [
-  { href: "/auth/signin", label: "Sign In" },
-  { href: "/auth/signup", label: "Sign Up" },
+  { href: "/auth/signin", label: "Bejelentkezés" },
+  { href: "/auth/signup", label: "Regisztráció" },
 ];
 
 export default function Layout({ children }: PropsWithChildren) {

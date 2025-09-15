@@ -39,17 +39,16 @@ export default function Page() {
   }
 
   return (
-    <main className="pt-[150px] pb-[110px] lg:pt-[220px]">
+    <main className="pt-[150px] pb-[110px] lg:pt-[220px] font-pixellari">
       <div className="container overflow-hidden lg:max-w-[1250px]">
         <div className="shadow-card dark:shadow-card-dark mx-auto w-full max-w-[520px] rounded-lg bg-[#F8FAFB] px-6 py-10 sm:p-[50px] dark:bg-[#15182A]">
           <div className="text-center">
             <h3 className="mb-[10px] text-2xl font-bold text-black sm:text-[28px] dark:text-white">
-              Forgot Password
+              Elfelejtett jelszó
             </h3>
 
             <p className="text-body mb-11 text-base">
-              Enter the email address associated with your account and we&#39;ll
-              send you a link to reset your password.
+              Add meg a fiókodhoz tartozó email címet, és küldünk egy linket a jelszó visszaállításához.
             </p>
           </div>
 
@@ -64,13 +63,13 @@ export default function Page() {
                 htmlFor="email"
                 className="mb-[10px] block text-sm text-black dark:text-white"
               >
-                Your Email
+                Email címed
               </label>
 
               <input
                 ref={ref}
                 type="email"
-                placeholder="Enter your email"
+                placeholder="Add meg az email címed"
                 className="border-stroke text-body focus:border-primary focus:shadow-input dark:border-stroke-dark dark:focus:border-primary w-full rounded-md border bg-white px-6 py-3 text-base font-medium outline-hidden disabled:opacity-40 dark:bg-black dark:text-white"
                 disabled={isLoading}
                 required
@@ -81,7 +80,7 @@ export default function Page() {
               className="bg-primary hover:bg-primary/90 flex w-full justify-center rounded-md p-3 text-base font-medium text-white disabled:opacity-40"
               disabled={isLoading}
             >
-              Send Reset Link
+              Jelszó visszaállító link küldése
             </button>
           </form>
         </div>

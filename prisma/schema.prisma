@@ -48,6 +48,7 @@ model User {
   passwordResetTokenExp DateTime?
   accounts              Account[]
   sessions              Session[]
+  trialEnded            Boolean   @default(false)
 }
 
 model VerificationToken {

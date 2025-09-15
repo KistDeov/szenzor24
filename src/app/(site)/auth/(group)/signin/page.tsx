@@ -6,8 +6,8 @@ import { TabContent, TabList, Tabs, TabTrigger } from "@/components/ui/tabs";
 import { SignInForm } from "./_components/form";
 
 const TABS = [
-  { value: "magic-link", label: "Magic Link" },
-  { value: "password", label: "Password" },
+  { value: "magic-link", label: "Speciális link" },
+  { value: "password", label: "Jelszó" },
 ];
 
 const SigninPage = () => {
@@ -15,19 +15,19 @@ const SigninPage = () => {
     <>
       <div className="text-center">
         <h3 className="mb-[10px] text-2xl font-bold text-black sm:text-[28px] dark:text-white">
-          Sign in to your account
+          Bejelentkezés
         </h3>
 
         <p className="text-body mb-11">
-          Login to your account for a faster checkout.
+          Jelentkezz be fiókodba a fizetéshez.
         </p>
 
-        <GoogleAuth label="Sign in with Google" />
+        <GoogleAuth label="Bejelentkezés Google-lal" />
 
         <div className="relative my-7.5 flex items-center">
           <div className="bg-stroke dark:bg-stroke-dark h-[1px] w-full max-[200px]:hidden" />
           <p className="text-body absolute right-1/2 translate-x-1/2 bg-[#F8FAFB] px-5 min-[200px]:whitespace-nowrap dark:bg-[#15182A]">
-            Or Sign In with your email
+            Vagy jelentkezzen be e-mail címével
           </p>
         </div>
       </div>

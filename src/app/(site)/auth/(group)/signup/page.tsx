@@ -6,8 +6,8 @@ import { TabContent, TabList, Tabs, TabTrigger } from "@/components/ui/tabs";
 import { SignUpForm } from "./_components/form";
 
 const TABS = [
-  { value: "magic-link", label: "Magic Link" },
-  { value: "password", label: "Password" },
+  { value: "magic-link", label: "Speciális link" },
+  { value: "password", label: "Jelszó" },
 ];
 
 export default function Register() {
@@ -15,18 +15,18 @@ export default function Register() {
     <>
       <div className="text-center">
         <h3 className="mb-[10px] text-2xl font-bold text-black sm:text-[28px] dark:text-white">
-          Create your account
+          Fiók létrehozása
         </h3>
         <p className="text-body mb-11 text-base">
-          It&apos;s totally free and super easy
+          Teljesen ingyenes és nagyon egyszerű
         </p>
 
-        <GoogleAuth label="Sign up with Google" />
+        <GoogleAuth label="Regisztráció Google-lal" />
 
         <div className="relative my-7.5 flex items-center">
           <div className="bg-stroke dark:bg-stroke-dark h-[1px] w-full max-[200px]:hidden" />
           <p className="text-body absolute right-1/2 translate-x-1/2 bg-[#F8FAFB] px-5 min-[200px]:whitespace-nowrap dark:bg-[#15182A]">
-            Or, Sign up with your email
+            Vagy regisztrálj az email címeddel
           </p>
         </div>
       </div>

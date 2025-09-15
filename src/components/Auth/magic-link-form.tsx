@@ -41,13 +41,13 @@ export function MagicLinkForm() {
         placeholder="Email"
         {...register("email", {
           required: true,
-          validate: (value) => value.includes("@") || "Invalid email address",
+          validate: (value) => value.includes("@") || "Érvénytelen email cím",
         })}
         errorMessages={formState.errors.email?.message}
       />
 
       <button className="mx-auto mt-6 flex items-center justify-center gap-2.5 rounded-full bg-black px-6 py-3 font-medium text-white duration-300 ease-in-out hover:bg-[#2C3149] dark:bg-[#292E45] dark:hover:bg-[#2C3149]">
-        Send Magic Link
+        Speciális link küldése
         <RightArrowIcon aria-hidden />
       </button>
     </form>

@@ -52,12 +52,12 @@ export function SignInForm() {
       <div className="mb-5">
         <InputGroup
           type="email"
-          label="Your email"
-          placeholder="Enter your email"
+          label="Email címed"
+          placeholder="Add meg az email címed"
           errorMessages={errors?.email?.message}
           {...register("email", {
             required: true,
-            validate: (value) => value.includes("@") || "Invalid email address",
+            validate: (value) => value.includes("@") || "Érvénytelen email cím",
           })}
         />
       </div>
@@ -65,14 +65,14 @@ export function SignInForm() {
       <div className="mb-6">
         <InputGroup
           type="password"
-          label="Your password"
-          placeholder="Enter your password"
+          label="Jelszavad"
+          placeholder="Add meg a jelszavad"
           errorMessages={errors?.password?.message}
           {...register("password", {
             required: true,
             validate: (value) =>
               passwordValidation(value) ||
-              "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+              "A jelszónak tartalmaznia kell legalább egy nagybetűt, egy kisbetűt, egy számot és egy speciális karaktert",
           })}
         />
       </div>
@@ -83,7 +83,7 @@ export function SignInForm() {
           name="keepSignedIn"
           render={({ field }) => (
             <Checkbox
-              label="Keep me signed in"
+              label="Maradjak bejelentkezve"
               name={field.name}
               onChange={(e) => field.onChange(e.target.checked)}
               defaultChecked={field.value}
@@ -95,12 +95,12 @@ export function SignInForm() {
           href="/auth/forget-password"
           className="text-primary hover:underline sm:text-right"
         >
-          Forgot Password?
+          Elfelejtetted a jelszavad?
         </Link>
       </div>
 
       <button className="bg-primary hover:bg-primary/90 flex w-full justify-center rounded-md p-3 text-base font-medium text-white">
-        Sign In
+        Bejelentkezés
       </button>
     </form>
   );

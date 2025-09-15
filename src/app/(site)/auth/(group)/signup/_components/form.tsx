@@ -46,10 +46,10 @@ export function SignUpForm() {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="mb-5">
         <InputGroup
-          label="Full Name"
-          placeholder="First and last name"
+          label="Teljes név"
+          placeholder="Keresztnév és vezetéknév"
           required
-          {...register("fullName", { required: "Full name is required" })}
+          {...register("fullName", { required: "Teljes név megadása kötelező" })}
           errorMessages={errors.fullName?.message}
         />
       </div>
@@ -57,12 +57,12 @@ export function SignUpForm() {
       <div className="mb-5">
         <InputGroup
           type="email"
-          label="Work Email"
-          placeholder="Enter your email"
+          label="Munkahelyi email"
+          placeholder="Add meg az email címed"
           required
           {...register("email", {
-            required: "Email is required",
-            validate: (value) => value.includes("@") || "Invalid email address",
+            required: "Email megadása kötelező",
+            validate: (value) => value.includes("@") || "Érvénytelen email cím",
           })}
           errorMessages={errors.email?.message}
         />
@@ -71,14 +71,14 @@ export function SignUpForm() {
       <div className="mb-6">
         <InputGroup
           type="password"
-          label="Your password"
-          placeholder="Enter your password"
+          label="Jelszó"
+          placeholder="Add meg a jelszavad"
           required
           {...register("password", {
-            required: "Password is required",
+            required: "Jelszó megadása kötelező",
             validate: (value) =>
               passwordValidation(value) ||
-              "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+              "A jelszónak tartalmaznia kell legalább egy nagybetűt, egy kisbetűt, egy számot és egy speciális karaktert",
           })}
           errorMessages={errors.password?.message}
         />
@@ -97,23 +97,23 @@ export function SignUpForm() {
                 defaultChecked={field.value}
                 label={
                   <>
-                    By creating account means you agree to the{" "}
+                    A fiók létrehozásával elfogadod a{" "}
                     <Link
                       href="#"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      Terms and Conditions
+                      Felhasználási feltételek
                     </Link>
-                    , and our{" "}
+                    , és a mi{" "}
                     <Link
                       href="#"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      Privacy Policy
+                      Adatvédelmi irányelveinket
                     </Link>
                   </>
                 }
@@ -129,7 +129,7 @@ export function SignUpForm() {
       </div>
 
       <button className="bg-primary hover:bg-primary/90 flex w-full justify-center rounded-md p-3 text-base font-medium text-white">
-        Sign Up
+        Regisztráció
       </button>
     </form>
   );

@@ -32,8 +32,8 @@ export default function Home() {
       <Testimonials />
       <Faq />
       {integrations.isSanityEnabled && <Blog />}
-      <Clients />*/}
-      <Contact />
+      <Clients />
+      <Contact />*/}
     </main>
   );
 }
