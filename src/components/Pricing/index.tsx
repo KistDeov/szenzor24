@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import { useSession, signIn } from "next-auth/react";
 import { Price } from "@/types/priceItem";
 
 import { pricingData } from "../../stripe/pricingData";
 import { PricingItem } from "./PricingItem";
+import toast from "react-hot-toast";
 
 const Pricing = () => {
   const [planType, setPlanType] = useState(false);
+  const { data: session } = useSession();
 
   return (
     <>
@@ -55,10 +58,92 @@ const Pricing = () => {
           </div>
 
           <div className="-mx-6 flex flex-wrap justify-center">
-            {pricingData &&
-              pricingData.map((price, key) => (
-                <PricingItem price={price} key={key} planType={planType} />
-              ))}
+            {/* Ingyenes csomag */}
+            <PricingItem
+              price={{
+                id: pricingData[0].id,
+                unit_amount: pricingData[0].unit_amount,
+                nickname: pricingData[0].nickname,
+                description: "Kezdő csomag, alap funkciókkal.",
+                features: [
+                  "100 db AI által generált üzenet",
+                  "1 db email cím",
+                  "Távsegítség",
+                  "Személyre szabott AI"
+                ]
+              }}
+              planType={planType}
+              buttonLabel="Kipróbálom"
+              buttonClass="bg-primary hover:bg-primary/90"
+              onButtonClick={async () => {
+                if (session) {
+                  if (session.user?.trialEnded === false || session.user?.trialEnded === undefined) {
+                    // 1. Letöltés
+                    const link = document.createElement('a');
+                    link.href = '/demo/demo.txt';
+                    link.download = 'demo.txt';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // 2. Licence email küldése
+                    try {
+                      const res = await fetch('/api/send-licence', { method: 'POST' });
+                      if (res.ok) {
+                        toast.success('A licence kódot elküldtük az email címedre!');
+                      } else {
+                        toast.error('Nem sikerült elküldeni a licence kódot.');
+                      }
+                    } catch {
+                      toast.error('Nem sikerült elküldeni a licence kódot.');
+                    }
+                  } else {
+                    toast.error('A próbaidőszakod már lejárt.');
+                  }
+                } else {
+                  signIn();
+                }
+              }}
+            />
+            {/* Korlátlan csomag */}
+            <PricingItem
+              price={{
+                id: pricingData[1].id,
+                unit_amount: pricingData[1].unit_amount,
+                nickname: pricingData[1].nickname,
+                description: "Korlátlan üzenet, extra funkciók.",
+                features: [
+                  "Korlátlan AI üzenet",
+                  "Korlátlan email cím",
+                  "Prioritásos távsegítség",
+                  "Extra AI testreszabás"
+                ]
+              }}
+              planType={planType}
+              buttonLabel="Hamarosan jön"
+              buttonClass="bg-primary hover:bg-primary/90 disabled:opacity-50"
+              buttonDisabled={true}
+              // Alapértelmezett Stripe fizetés (nincs onButtonClick)
+            />
+            {/* Üzleti csomag */}
+            <PricingItem
+              price={{
+                id: pricingData[2].id,
+                unit_amount: pricingData[2].unit_amount,
+                nickname: pricingData[2].nickname,
+                description: "Üzleti ügyfeleknek.",
+                features: [
+                  "Üzleti AI üzenet",
+                  "Több felhasználó",
+                  "Dedikált ügyfélszolgálat",
+                  "Egyedi integrációk"
+                ]
+              }}
+              planType={planType}
+              buttonLabel="Hamarosan jön"
+              buttonClass="bg-primary hover:bg-primary/90 disabled:opacity-50"
+              buttonDisabled={true}
+            />
           </div>
         </div>
       </section>

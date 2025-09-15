@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prismaDB";
+import { generateUniqueLicence } from "@/lib/licence";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -16,6 +17,38 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.SECRET,
   session: {
     strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.licence = (user as any).licence;
+        token.trialEnded = (user as any).trialEnded;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.licence = (token as any).licence;
+        session.user.trialEnded = (token as any).trialEnded;
+      }
+      return session;
+    },
+  },
+  events: {
+    // Runs after a user is created by the adapter (OAuth / Email etc.)
+    createUser: async ({ user }) => {
+      try {
+        if (!user.licence || user.licence === "XXXXXXXXXXXXXXXX") {
+          const licence = await generateUniqueLicence();
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { licence },
+          });
+        }
+      } catch (e) {
+        console.error("Failed to assign licence to new user", e);
+      }
+    },
   },
 
   providers: [

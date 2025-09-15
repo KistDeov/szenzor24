@@ -49,6 +49,8 @@ model User {
   accounts              Account[]
   sessions              Session[]
   trialEnded            Boolean   @default(false)
+  licence               String   @db.Char(16) @default("XXXXXXXXXXXXXXXX")
+  licenceActivated      Boolean   @default(false)
 }
 
 model VerificationToken {

@@ -3,11 +3,14 @@ import { integrations, messages } from "@integrations-config";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-export const PricingItem = ({ price, planType }: any) => {
+export const PricingItem = ({ price, planType, buttonLabel = "Előfizetek", buttonClass = "", onButtonClick, buttonDisabled = false }: any) => {
   // POST request
   const handleSubscription = async (e: any) => {
     e.preventDefault();
-
+    if (typeof onButtonClick === 'function') {
+      onButtonClick(e, price, planType);
+      return;
+    }
     if (integrations?.isStripeEnabled) {
       const { data } = await axios.post(
         "/api/payment",
@@ -39,7 +42,7 @@ export const PricingItem = ({ price, planType }: any) => {
           {price.nickname}
         </h3>
         <p className="text-body mb-7 text-base">
-          Rövid csomagleírás ide jöhet
+          {price.description ? price.description : "Rövid csomagleírás ide jöhet"}
         </p>
 
         <p className="border-stroke dark:border-stroke-dark border-b pb-5 text-black dark:text-white">
@@ -61,110 +64,43 @@ export const PricingItem = ({ price, planType }: any) => {
         </p>
 
         <div className="space-y-4 pt-[30px] pb-10">
-          <p className="dark:text-body flex text-base text-black">
-            <span className="mt-1 mr-[10px]">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clipPath="url(#clip0_44_7)">
-                  <path
-                    d="M6.66674 10.1147L12.7947 3.98599L13.7381 4.92866L6.66674 12L2.42407 7.75733L3.36674 6.81466L6.66674 10.1147Z"
-                    fill="#00BE6C"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_44_7">
-                    <rect width="16" height="16" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-            </span>
-            100 db AI által generált üzenet
-          </p>
-          <p className="dark:text-body flex text-base text-black">
-            <span className="mt-1 mr-[10px]">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clipPath="url(#clip0_44_7)">
-                  <path
-                    d="M6.66674 10.1147L12.7947 3.98599L13.7381 4.92866L6.66674 12L2.42407 7.75733L3.36674 6.81466L6.66674 10.1147Z"
-                    fill="#00BE6C"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_44_7">
-                    <rect width="16" height="16" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-            </span>
-            1 db email cím
-          </p>
-          <p className="dark:text-body flex text-base text-black">
-            <span className="mt-1 mr-[10px]">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clipPath="url(#clip0_44_7)">
-                  <path
-                    d="M6.66674 10.1147L12.7947 3.98599L13.7381 4.92866L6.66674 12L2.42407 7.75733L3.36674 6.81466L6.66674 10.1147Z"
-                    fill="#00BE6C"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_44_7">
-                    <rect width="16" height="16" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-            </span>
-            Távsegítség
-          </p>
-          <p className="dark:text-body flex text-base text-black">
-            <span className="mt-1 mr-[10px]">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clipPath="url(#clip0_44_7)">
-                  <path
-                    d="M6.66674 10.1147L12.7947 3.98599L13.7381 4.92866L6.66674 12L2.42407 7.75733L3.36674 6.81466L6.66674 10.1147Z"
-                    fill="#00BE6C"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_44_7">
-                    <rect width="16" height="16" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-            </span>
-            Személyre szabott AI
-          </p>
+          {Array.isArray(price.features)
+            ? price.features.map((feature: string, idx: number) => (
+                <p className="dark:text-body flex text-base text-black" key={idx}>
+                  <span className="mt-1 mr-[10px]">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g clipPath="url(#clip0_44_7)">
+                        <path
+                          d="M6.66674 10.1147L12.7947 3.98599L13.7381 4.92866L6.66674 12L2.42407 7.75733L3.36674 6.81466L6.66674 10.1147Z"
+                          fill="#00BE6C"
+                        />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_44_7">
+                          <rect width="16" height="16" fill="white" />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  </span>
+                  {feature}
+                </p>
+              ))
+            : null}
         </div>
 
         <button
           aria-label="purchase this plan"
           onClick={handleSubscription}
-          className={`block w-full rounded-md px-8 py-[10px] text-center text-base font-medium text-white ${price.nickname === "Unlimited" ? "bg-primary hover:bg-primary/90" : "hover:bg-primary dark:hover:bg-primary bg-black dark:bg-[#2A2E44]"}`}
+          className={`block w-full rounded-md px-8 py-[10px] text-center text-base font-medium text-white ${buttonClass || (price.nickname === "Unlimited" ? "bg-primary hover:bg-primary/90" : "hover:bg-primary dark:hover:bg-primary bg-black dark:bg-[#2A2E44]")}`}
+            disabled={buttonDisabled}
         >
-          Előfizetek
+          {buttonLabel}
         </button>
       </div>
     </div>

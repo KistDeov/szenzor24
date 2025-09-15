@@ -37,7 +37,7 @@ const Screens = () => {
 
         <div className="container">
           <div
-            className="wow fadeInUp mx-auto max-w-[900px]"
+            className="wow fadeInUp mx-auto max-w-[900px] mb-12"
             data-wow-delay=".2s"
           >
             <Swiper

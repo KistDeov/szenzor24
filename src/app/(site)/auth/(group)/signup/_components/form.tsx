@@ -88,7 +88,7 @@ export function SignUpForm() {
         <Controller
           control={control}
           name="privacyPolicy"
-          rules={{ required: "You must agree to the terms and conditions" }}
+          rules={{ required: "El kell fogadnod a felhasználási feltételeket" }}
           render={({ field, fieldState }) => (
             <>
               <Checkbox
