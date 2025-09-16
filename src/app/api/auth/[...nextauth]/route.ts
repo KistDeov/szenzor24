@@ -14,9 +14,26 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
   adapter: PrismaAdapter(prisma),
-  secret: process.env.SECRET,
+  // Use NEXTAUTH_SECRET (official var name). Previously referenced process.env.SECRET which was undefined in production and caused 500 errors.
+  // You can also omit this line and NextAuth will automatically read NEXTAUTH_SECRET.
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
+  },
+  debug: process.env.NODE_ENV !== "production",
+  logger: {
+    error(code, metadata) {
+      console.error("[NextAuth][error]", code, metadata);
+    },
+    warn(code) {
+      console.warn("[NextAuth][warn]", code);
+    },
+    debug(code, metadata) {
+      // Avoid logging sensitive data
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[NextAuth][debug]", code, metadata && Object.keys(metadata));
+      }
+    },
   },
   callbacks: {
     async jwt({ token, user }) {
