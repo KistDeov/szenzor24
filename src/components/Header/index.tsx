@@ -23,10 +23,6 @@ const menuData: Menu[] = [
   {
     label: "Képek",
     route: "/#screens",
-  },
-  {
-    label: "Kapcsolat",
-    route: "/#support",
   }
 ];
 
