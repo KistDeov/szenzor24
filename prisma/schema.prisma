@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider          = "mysql"
-  url               = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -23,10 +23,10 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId], map: "Account_userId_fkey")
 }
 
 model Session {
@@ -35,6 +35,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Session_userId_fkey")
 }
 
 model User {
@@ -46,11 +48,11 @@ model User {
   password              String?
   passwordResetToken    String?   @unique
   passwordResetTokenExp DateTime?
+  licence               String    @default("XXXXXXXXXXXXXXXX") @db.Char(16)
+  licenceActivated      Boolean   @default(false)
+  trialEnded            Boolean   @default(false)
   accounts              Account[]
   sessions              Session[]
-  trialEnded            Boolean   @default(false)
-  licence               String   @db.Char(16) @default("XXXXXXXXXXXXXXXX")
-  licenceActivated      Boolean   @default(false)
 }
 
 model VerificationToken {

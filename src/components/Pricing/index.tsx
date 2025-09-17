@@ -80,7 +80,7 @@ const Pricing = () => {
                   if (session.user?.trialEnded === false || session.user?.trialEnded === undefined) {
                     // 1. Letöltés
                     const link = document.createElement('a');
-                    link.href = 'https://drive.google.com/file/d/1w0ZdhGBW8CJr6UP14plTjyj_JYnOT0xG/view?usp=drive_link'; // Cseréld ki a YOUR_FILE_ID-t a saját Google Drive fájl azonosítódra
+                    link.href = 'https://drive.google.com/file/d/1w0ZdhGBW8CJr6UP14plTjyj_JYnOT0xG/view?usp=sharing';
                     link.target = '_blank';
                     document.body.appendChild(link);
                     link.click();
