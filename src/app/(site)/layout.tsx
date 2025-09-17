@@ -11,6 +11,7 @@ import "../../css/animate.css";
 import "../../css/style.css";
 import AuthProvider from "../context/AuthContext";
 import ToasterContext from "../context/ToastContext";
+import { Analytics } from '@vercel/analytics/next';
 
 export default function RootLayout({
   children,
@@ -43,6 +44,7 @@ export default function RootLayout({
           <ToasterContext />
           <ScrollToTop />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
