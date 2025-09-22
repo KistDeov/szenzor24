@@ -81,7 +81,6 @@ const Pricing = () => {
                     // 1. Letöltés
                     const link = document.createElement('a');
                     link.href = '/api/download'; 
-                    link.download = 'aimail-Setup-1.0.13.exe'; 
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
