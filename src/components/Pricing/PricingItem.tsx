@@ -45,8 +45,8 @@ export const PricingItem = ({ price, planType, buttonLabel = "Előfizetek", butt
           {price.description ? price.description : "Rövid csomagleírás ide jöhet"}
         </p>
 
-        <p className="border-stroke dark:border-stroke-dark border-b pb-5 text-black dark:text-white">
-          <span className="text-[40px] leading-none font-bold">
+        <p className="border-stroke dark:border-stroke-dark border-b pb-5 text-gray-900 dark:text-white">
+          <span className="text-[40px] leading-none">
             <sup className="text-[22px] font-medium"> Ft </sup>
 
             {planType

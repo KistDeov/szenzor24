@@ -33,7 +33,7 @@ const HeroArea = () => {
 
                 <div className="flex flex-wrap items-center">
                   <Link
-                    href="#"
+                    href="#pricing"
                     className="mr-6 mb-6 inline-flex h-[60px] items-center rounded-lg bg-black px-[30px] py-[14px] text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
                   >
                     <span>
