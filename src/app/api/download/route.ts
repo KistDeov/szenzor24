@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { createReadStream } from "fs";
 import path from "path";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export async function GET(req: NextApiRequest, res: NextApiResponse) {
   try {
     // Check if the user is authenticated
     const user = await prisma.user.findUnique({
