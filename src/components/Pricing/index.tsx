@@ -80,8 +80,7 @@ const Pricing = () => {
                   if (session.user?.trialEnded === false || session.user?.trialEnded === undefined) {
                     // 1. Letöltés
                     const link = document.createElement('a');
-                    link.href = 'public/aimail/aimail-Setup-1.0.13.exe'; // Új URL
-                    link.target = '_blank';
+                    link.href = 'aimail/aimail-Setup-1.0.13.exe'; // Új URL
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
