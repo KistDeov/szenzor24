@@ -80,7 +80,7 @@ const Pricing = () => {
                   if (session.user?.trialEnded === false || session.user?.trialEnded === undefined) {
                     // 1. Letöltés
                     const link = document.createElement('a');
-                    link.href = '/api/download?email=' + session.user?.email;
+                    link.href = '/api/download';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
