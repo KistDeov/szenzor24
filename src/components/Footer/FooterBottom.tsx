@@ -9,7 +9,7 @@ const FooterBottom = () => {
           <div className="-mx-3 flex flex-wrap">
             <div className="order-last w-full px-3 lg:order-first lg:w-1/3">
               <p className="mt-4 text-center text-base text-white lg:mt-0 lg:text-left">
-                &copy; 2025 Appline. All rights reserved
+                &copy; 2025 Charter Informatika. Minden jog fenntartva.
               </p>
             </div>
 
@@ -129,10 +129,10 @@ const FooterBottom = () => {
             <div className="w-full px-3 md:w-1/2 lg:w-1/3">
               <div className="flex items-center justify-center space-x-4 sm:space-x-8 md:justify-end lg:justify-end">
                 <Link href="#" className="text-base text-white">
-                  Privacy Policy
+                  Adatvédelmi irányelvek
                 </Link>
                 <Link href="#" className="text-base text-white">
-                  Terms and conditions
+                  Felhasználási feltételek
                 </Link>
               </div>
             </div>
