@@ -35,9 +35,13 @@ export async function GET(request: Request) {
   const pathname = getPathname(request);
 
   if (pathname.endsWith("/api/secure/keys")) {
+    // If the request was authorized via the client API token, return the
+    // real values so the trusted client can use them. If authorized via a
+    // session, continue to return masked presence information.
+    const isClient = auth.method === "token";
     return NextResponse.json({
-      DATABASE_URL: maskPresence(process.env.DATABASE_URL),
-      OPENAI_API_KEY: maskPresence(process.env.OPENAI_API_KEY),
+      DATABASE_URL: isClient ? process.env.DATABASE_URL ?? null : maskPresence(process.env.DATABASE_URL),
+      OPENAI_API_KEY: isClient ? process.env.OPENAI_API_KEY ?? null : maskPresence(process.env.OPENAI_API_KEY),
     });
   }
 
