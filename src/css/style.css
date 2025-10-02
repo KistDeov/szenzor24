@@ -30,6 +30,7 @@
   --color-current: currentColor;
   --color-transparent: transparent;
   --color-white: #ffffff;
+  --color-cream: #f7efe6;
   --color-black: #181c31;
   --color-primary: #7083f5;
   --color-secondary: ;
@@ -231,7 +232,13 @@
   }
 
   body {
-    @apply bg-white dark:bg-black;
+    /* Use a soft cream background instead of pure white */
+    background-color: var(--color-cream);
+  }
+
+  /* Preserve dark mode background (when `.dark` class is present) */
+  .dark body {
+    background-color: var(--color-black);
   }
 }
 
