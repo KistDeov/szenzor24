@@ -9,11 +9,11 @@ import { useEffect, useState } from "react";
 
 const menuData: Menu[] = [
   {
-    label: "Jellemzők",
+    label: "Funkciók",
     route: "/#features",
   },
   {
-    label: "Hogyan működik",
+    label: "Útmutató",
     route: "/#work-process",
   },
   {
@@ -248,7 +248,7 @@ const Header = () => {
 
                   <Link
                     href="/auth/signup"
-                    className="bg-primary hover:bg-primary/90 hidden rounded-md px-[30px] py-[10px] text-base font-medium text-white sm:inline-block"
+                    className="bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 hidden rounded-md px-[30px] py-[10px] text-base font-medium text-white sm:inline-block"
                   >
                     Regisztráció
                   </Link>

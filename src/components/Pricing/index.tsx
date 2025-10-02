@@ -68,13 +68,14 @@ const Pricing = () => {
                 features: [
                   "100 db AI által generált üzenet",
                   "1 db email cím",
-                  "Távsegítség",
-                  "Személyre szabott AI"
+                  "90 napos próbaidőszak",
+                  "Korlátozott adatbázis",
+                  "Távsegítség"
                 ]
               }}
               planType={planType}
               buttonLabel="Kipróbálom"
-              buttonClass="bg-primary hover:bg-primary/90"
+              buttonClass="bg-black px-[30px] py-[14px] text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
               onButtonClick={async () => {
                 if (session) {
                   if (session.user?.trialEnded === false || session.user?.trialEnded === undefined) {

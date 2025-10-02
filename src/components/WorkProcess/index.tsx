@@ -93,7 +93,7 @@ const WorkProcess = () => {
             data-wow-delay=".2s"
           >
             <h2 className="mb-4 text-3xl font-bold text-black dark:text-white sm:text-4xl md:text-[44px] md:leading-tight">
-              Hogyan működik?
+              Útmutató a telepítéshez
             </h2>
             <p className="text-base text-body">
               Tedd egyszerűbbé az életed azáltal, hogy az AI-ra bízod a

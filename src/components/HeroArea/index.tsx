@@ -22,13 +22,13 @@ const HeroArea = () => {
                   Ai vezérelt, Automata levelezés
                 </span>
                 <h1 className="mb-6 text-3xl leading-tight font-bold text-black sm:text-[40px] md:text-[50px] lg:text-[42px] xl:text-[50px] dark:text-white">
-                  <span className="bg-gradient-1 bg-clip-text text-transparent">
+                  <span className="bg-gradient-2 bg-clip-text text-transparent">
                   Okos Mail{" "}
                   </span>
                   - Az AI által vezérelt automata levelező rendszer
                 </h1>
                 <p className="text-body mb-10 max-w-[475px] text-base leading-relaxed">
-                  Töltse le most, és próbálja ki INGYEN a legújabb verziót!
+                  Töltsd le most, és próbáld ki INGYEN a legújabb verziót!
                 </p>
 
                 <div className="flex flex-wrap items-center">
