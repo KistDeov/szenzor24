@@ -180,13 +180,13 @@ const featuresData: Feature[] = [
 const Features = () => {
   return (
     <>
-      <section id="features" className="relative z-10 pt-[110px] font-pixellari">
+      <section id="features" className="relative z-10 pt-[110px]">
         <div className="container">
           <div
             className="wow fadeInUp mx-auto mb-14 max-w-[690px] text-center lg:mb-[70px]"
             data-wow-delay=".2s"
           >
-            <h2 className="mb-4 text-3xl font-bold text-black dark:text-white sm:text-4xl md:text-[44px] md:leading-tight">
+            <h2 className="mt-12 mb-4 text-3xl font-bold text-black dark:text-white sm:text-4xl md:text-[44px] md:leading-tight">
               AI-vezérelt funkciók, melyek megkönnyítik a levelezésedet
             </h2>
             <p className="text-base text-body">

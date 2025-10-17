@@ -86,7 +86,7 @@ const workProcessData: Feature[] = [
 const WorkProcess = () => {
   return (
     <>
-      <section id="work-process" className="relative z-10 pt-[110px] font-pixellari">
+      <section id="work-process" className="relative z-10 pt-[110px]">
         <div className="container">
           <div
             className="wow fadeInUp mx-auto mb-14 max-w-[690px] text-center lg:mb-[70px]"

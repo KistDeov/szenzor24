@@ -9,15 +9,15 @@ import { useEffect, useState } from "react";
 
 const menuData: Menu[] = [
   {
-    label: "Funkciók",
+    label: "Eszközeink",
     route: "/#features",
   },
   {
-    label: "Útmutató",
+    label: "Beüzemelés",
     route: "/#work-process",
   },
   {
-    label: "Letöltés",
+    label: "Rendelés",
     route: "/#pricing",
   },
   {
@@ -82,7 +82,7 @@ const Header = () => {
           sticky
             ? "fixed border-b bg-white/95 backdrop-blur-xs dark:bg-black/95"
             : "absolute"
-  } font-pixellari`}
+        }`}
       >
         <div className="relative container max-w-[1400px] font">
           <div className="flex items-center justify-between">

@@ -39,7 +39,7 @@ export default function Page() {
   }
 
   return (
-    <main className="pt-[150px] pb-[110px] lg:pt-[220px] font-pixellari">
+    <main className="pt-[150px] pb-[110px] lg:pt-[220px]">
       <div className="container overflow-hidden lg:max-w-[1250px]">
         <div className="shadow-card dark:shadow-card-dark mx-auto w-full max-w-[520px] rounded-lg bg-[#F8FAFB] px-6 py-10 sm:p-[50px] dark:bg-[#15182A]">
           <div className="text-center">

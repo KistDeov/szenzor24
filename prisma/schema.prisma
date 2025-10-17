@@ -48,9 +48,6 @@ model User {
   password              String?
   passwordResetToken    String?   @unique
   passwordResetTokenExp DateTime?
-  licence               String    @default("XXXXXXXXXXXXXXXX") @db.Char(16)
-  licenceActivated      Boolean   @default(false)
-  trialEnded            Boolean   @default(false)
   accounts              Account[]
   sessions              Session[]
 }

@@ -14,7 +14,7 @@ import { integrations } from "@integrations-config";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Okos Mail",
+  title: "Szenzor24",
   description:
     "AI által vezérelt automata levelező program"
 };
