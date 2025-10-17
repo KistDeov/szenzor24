@@ -1,16 +1,62 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useState,useEffect,useRef } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { Price } from "@/types/priceItem";
 
 import { pricingData } from "../../stripe/pricingData";
 import { PricingItem } from "./PricingItem";
 import toast from "react-hot-toast";
+import { get } from "http";
 
 const Pricing = () => {
-  const [planType, setPlanType] = useState(false);
+  // Színválasztók: doboz (hátsó rész) és tető (előlapi rész)
+  const boxColors = [
+    { name: "Zöld", value: "zold" },
+    { name: "Piros", value: "piros" },
+    { name: "Kék", value: "kek" },
+    { name: "Fekete", value: "fekete" },
+  ];
+  const topColors = [
+    { name: "Fehér", value: "feher" },
+    { name: "Szürke", value: "szurke" },
+    { name: "Fekete", value: "fekete" },
+  ];
+  const [boxColor, setBoxColor] = useState("zold");
+  const [topColor, setTopColor] = useState("feher");
   const { data: session } = useSession();
+  // A GLB fájlok elnevezése: /images/hero/{box}_{top}.glb
+  const getModelPath = (box: string, top: string) => `/images/hero/${box}_${top}.glb`;
+  const [modelSrc, setModelSrc] = useState<string>(getModelPath(boxColor, topColor));
+  const modelViewerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    import("@google/model-viewer");
+  }, []);
+  useEffect(() => {
+    setModelSrc(getModelPath(boxColor, topColor));
+  }, [boxColor, topColor]);
+  useEffect(() => {
+    const container = modelViewerRef.current;
+    if (!container) return;
+    const mv = container.querySelector("model-viewer");
+    if (!mv) return;
+    const onError = (ev: Event) => {
+      console.warn("model-viewer failed to load model:", ev);
+      const parent = mv.parentElement;
+      if (parent) {
+        parent.innerHTML = `<img src="/images/hero/hero-light.png" alt="Model not available" style="width:100%;height:400px;object-fit:contain"/>`;
+      }
+    };
+    const onLoad = () => {
+      console.debug("model-viewer loaded model successfully");
+    };
+    mv.addEventListener("error", onError as EventListener);
+    mv.addEventListener("load", onLoad as EventListener);
+    return () => {
+      mv.removeEventListener("error", onError as EventListener);
+      mv.removeEventListener("load", onLoad as EventListener);
+    };
+  }, [modelSrc]);
+
 
   return (
     <>
@@ -21,130 +67,61 @@ const Pricing = () => {
             data-wow-delay=".2s"
           >
             <h2 className="mb-4 text-3xl font-bold text-black dark:text-white sm:text-4xl md:text-[44px] md:leading-tight">
-              Válassz csomagot
+              Itt választhatsz, milyen színben szeretnéd!
             </h2>
             <p className="text-base text-body">
-              Válaszd ki a számodra, vagy a vállalkozásod számára legmegfelelőbb
-              csomagot! Bármikor válthatsz, nincs hűségidő!
+            Próbáld ki kockázatmentesen és tapasztald meg, hogyan könnyíti meg munkádat a HűtőMonitor! 🛡️❄
+            iztosítunk neked egy terméket próbahasználatra, te pedig győződj meg róla, hogy a HűtőMonitor valóban leegyszerűsíti a napi hőmérséklet-ellenőrzést és megfelel a HACCP előírásoknak.
             </p>
           </div>
         </div>
 
         <div className="container max-w-[1120px] overflow-hidden">
-          <div
-            className="wow fadeInUp mb-[60px] flex items-center justify-center"
-            data-wow-delay=".25s"
-          >
-            <label htmlFor="togglePlan" className="inline-flex items-center">
-              <input
-                type="checkbox"
-                name="togglePlan"
-                id="togglePlan"
-                className="sr-only"
-                onClick={() => setPlanType(!planType)}
-              />
-              <span className="monthly text-sm font-medium text-black dark:text-white">
-                Havi
-              </span>
-              <span className="mx-5 flex h-[34px] w-[60px] cursor-pointer items-center rounded-full bg-primary p-[3px]">
-                <span
-                  className={`${planType && "translate-x-[26px]"} block h-7 w-7 rounded-full bg-white duration-300`}
-                ></span>
-              </span>
-              <span className="yearly text-sm font-medium text-black dark:text-white">
-                  Éves
-              </span>
-            </label>
+
+          {/* Doboz színválasztó */}
+          <div className="mb-4 flex flex-col items-center gap-2">
+            <span className="font-medium text-black dark:text-white mb-1">Doboz színe:</span>
+            <div className="flex gap-2 flex-wrap justify-center">
+              {boxColors.map((color) => (
+                <button
+                  key={color.value}
+                  className={`px-4 py-2 rounded-full border-2 text-sm font-semibold transition-all ${boxColor === color.value ? 'bg-primary text-white border-primary' : 'bg-white text-black border-gray-300 dark:bg-dark dark:text-white'}`}
+                  onClick={() => setBoxColor(color.value)}
+                >
+                  {color.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Tető színválasztó */}
+          <div className="mb-6 flex flex-col items-center gap-2">
+            <span className="font-medium text-black dark:text-white mb-1">Tető színe:</span>
+            <div className="flex gap-2 flex-wrap justify-center">
+              {topColors.map((color) => (
+                <button
+                  key={color.value}
+                  className={`px-4 py-2 rounded-full border-2 text-sm font-semibold transition-all ${topColor === color.value ? 'bg-primary text-white border-primary' : 'bg-white text-black border-gray-300 dark:bg-dark dark:text-white'}`}
+                  onClick={() => setTopColor(color.value)}
+                >
+                  {color.name}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="-mx-6 flex flex-wrap justify-center">
-            {/* Ingyenes csomag */}
-            <PricingItem
-              price={{
-                id: pricingData[0].id,
-                unit_amount: pricingData[0].unit_amount,
-                nickname: pricingData[0].nickname,
-                description: "Kezdő csomag, alap funkciókkal.",
-                features: [
-                  "100 db AI által generált üzenet",
-                  "1 db email cím",
-                  "90 napos próbaidőszak",
-                  "Korlátozott adatbázis",
-                  "Távsegítség"
-                ]
-              }}
-              planType={planType}
-              buttonLabel="Kipróbálom"
-              buttonClass="bg-black px-[30px] py-[14px] text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
-              onButtonClick={async () => {
-                if (session) {
-                  if (session.user?.trialEnded === false || session.user?.trialEnded === undefined) {
-                    // 1. Letöltés
-                    const link = document.createElement('a');
-                    link.href = '/api/download'; 
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
-                    // 2. Licence email küldése
-                    try {
-                      const res = await fetch('/api/send-licence', { method: 'POST' });
-                      if (res.ok) {
-                        toast.success('A licence kódot elküldtük az email címedre!');
-                      } else {
-                        toast.error('Nem sikerült elküldeni a licence kódot.');
-                      }
-                    } catch {
-                      toast.error('Nem sikerült elküldeni a licence kódot.');
-                    }
-                  } else {
-                    toast.error('A próbaidőszakod már lejárt.');
-                  }
-                } else {
-                  signIn();
-                }
-              }}
-            />
-            {/* Korlátlan csomag */}
-            <PricingItem
-              price={{
-                id: pricingData[1].id,
-                unit_amount: pricingData[1].unit_amount,
-                nickname: pricingData[1].nickname,
-                description: "Korlátlan üzenet, extra funkciók.",
-                features: [
-                  "Korlátlan AI üzenet",
-                  "Korlátlan email cím",
-                  "Prioritásos távsegítség",
-                  "Extra AI testreszabás"
-                ]
-              }}
-              planType={planType}
-              buttonLabel="Hamarosan jön"
-              buttonClass="bg-primary hover:bg-primary/90 disabled:opacity-50"
-              buttonDisabled={true}
-              // Alapértelmezett Stripe fizetés (nincs onButtonClick)
-            />
-            {/* Üzleti csomag */}
-            <PricingItem
-              price={{
-                id: pricingData[2].id,
-                unit_amount: pricingData[2].unit_amount,
-                nickname: pricingData[2].nickname,
-                description: "Üzleti ügyfeleknek.",
-                features: [
-                  "Üzleti AI üzenet",
-                  "Több felhasználó",
-                  "Dedikált ügyfélszolgálat",
-                  "Egyedi integrációk"
-                ]
-              }}
-              planType={planType}
-              buttonLabel="Hamarosan jön"
-              buttonClass="bg-primary hover:bg-primary/90 disabled:opacity-50"
-              buttonDisabled={true}
-            />
-          </div>
+         <div
+                  ref={modelViewerRef}
+                  dangerouslySetInnerHTML={{
+                    __html: `<model-viewer
+                      src="${modelSrc ?? getModelPath(boxColor, topColor)}"
+                      alt="3D model"
+                      auto-rotate
+                      camera-controls
+                      crossorigin="anonymous"
+                      style="width: 100%; height: 400px;">
+                    </model-viewer>`,
+                  }}
+                />
         </div>
       </section>
     </>
