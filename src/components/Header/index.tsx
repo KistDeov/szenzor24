@@ -21,7 +21,7 @@ const menuData: Menu[] = [
     route: "/#pricing",
   },
   {
-    label: "Képek",
+    label: "Elérhetőség",
     route: "/#screens",
   }
 ];
@@ -86,26 +86,25 @@ const Header = () => {
       >
         <div className="relative container max-w-[1400px] font">
           <div className="flex items-center justify-between">
-            <div className="block py-4 lg:py-0">
-              <Link href="/">
+            <div className="flex items-center gap-4 py-4 lg:py-0">
+              <Link href="/" className="flex items-center gap-2">
                 <Image
-                  width={216}
-                  height={43}
-                  src={"/images/logo/Headerlogo_light.png"}
+                  width={115}
+                  height={35}
+                  src={"/images/icon.ico"}
                   alt="Logo"
                   priority
                   className="block dark:hidden"
-              
                 />
                 <Image
-                  width={216}
-                  height={43}
-                  src={"/images/logo/Headerlogo.png"}
+                  width={115}
+                  height={35}
+                  src={"/images/hutpopajzs_logo.png"}
                   alt="Logo"
                   priority
                   className="hidden dark:block"
-                 
                 />
+                <span className="ml-2 text-xl font-bold text-black dark:text-white select-none">Okoshűtő</span>
               </Link>
             </div>
 
