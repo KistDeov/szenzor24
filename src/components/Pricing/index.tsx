@@ -71,7 +71,7 @@ const Pricing = () => {
             </h2>
             <p className="text-base text-body">
             Próbáld ki kockázatmentesen és tapasztald meg, hogyan könnyíti meg munkádat a HűtőMonitor! 🛡️❄
-            iztosítunk neked egy terméket próbahasználatra, te pedig győződj meg róla, hogy a HűtőMonitor valóban leegyszerűsíti a napi hőmérséklet-ellenőrzést és megfelel a HACCP előírásoknak.
+            iztosítunk neked egy terméket próbahasználatra, te pedig győződj meg róla, hogy a HűtőMonitor valóban leegyszerűsíti a napi hőmérséklet-ellenőrzést és megfelel a HACCP előírásoknak
             </p>
           </div>
         </div>
