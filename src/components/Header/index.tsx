@@ -80,7 +80,7 @@ const Header = () => {
       <header
         className={`navbar border-stroke dark:border-stroke-dark top-0 left-0 z-50 w-full ${
           sticky
-            ? "fixed border-b bg-white/95 backdrop-blur-xs dark:bg-black/95"
+            ? "fixed border-b bg-white/80 backdrop-blur-md shadow-md dark:bg-black/95"
             : "absolute"
         }`}
       >
