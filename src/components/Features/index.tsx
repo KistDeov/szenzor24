@@ -182,6 +182,15 @@ const Features = () => {
     <>
       <section id="features" className="relative z-10 pt-[110px]">
         <div className="container">
+          {/* Images moved from Pricing: show above the features heading */}
+          <div className="mb-6 flex justify-center">
+            {/* Stack on mobile, row on sm+ */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full max-w-[900px] px-4">
+              <img src="/images/hero/szenzorkep1.png" alt="Left" className="w-full sm:w-1/2 h-auto max-h-[300px] md:max-h-[400px] object-contain" />
+              <img src="/images/hero/szenzorkep2.png" alt="Right" className="w-full sm:w-1/2 h-auto max-h-[300px] md:max-h-[400px] object-contain" />
+            </div>
+          </div>
+
           <div
             className="wow fadeInUp mx-auto mb-14 max-w-[690px] text-center lg:mb-[70px]"
             data-wow-delay=".2s"
