@@ -9,12 +9,15 @@ type PropsType = {
 const verifyToken = async (token: string) => {
   if (!token) throw new Error("Hiányzó token");
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
       passwordResetToken: token,
       passwordResetTokenExp: {
-        gte: new Date(), 
+        gte: new Date(),
       },
+    },
+    select: {
+      email: true,
     },
   });
 

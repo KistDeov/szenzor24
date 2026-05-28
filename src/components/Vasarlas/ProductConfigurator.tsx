@@ -321,6 +321,15 @@ const presetOptions: PresetOption[] = [
     popular: true,
   },
   {
+    id: "bor",
+    label: "Bormonitor",
+    description: "Hő + páratartalom szenzor, normál burkolat",
+    infodescription: "Bortároló / borospince hőmérséklet- és páratartalom-figyelése",
+    szenzorok: ["homerseklet", "paratartalom"],
+    anyagId: "normal_burkolat",
+    popular: true,
+  },
+  {
     id: "akvarium",
     label: "Akvárium",
     description: "Hő + O2 + CO2 szenzor, vízálló burkolat",
@@ -330,6 +339,16 @@ const presetOptions: PresetOption[] = [
     popular: true,
   },
 ];
+
+const disabledTapellatasByPreset: Record<string, string> = {
+  huto: "akkus",
+  bor: "vezetekes",
+};
+
+const requiredDobozByPreset: Record<string, string> = {
+  huto: "muanyag",
+  bor: "muanyag",
+};
 
 type StepId =
   | "mod"
@@ -655,6 +674,15 @@ const ProductConfigurator = () => {
           ),
         )
       : catalog.szenzorok;
+  const isTapellatasDisabled = (tapellatasId: string) =>
+    configMode === "preset" &&
+    selectedPresetId !== null &&
+    disabledTapellatasByPreset[selectedPresetId] === tapellatasId;
+  const isDobozDisabled = (dobozId: string) =>
+    configMode === "preset" &&
+    selectedPresetId !== null &&
+    requiredDobozByPreset[selectedPresetId] !== undefined &&
+    requiredDobozByPreset[selectedPresetId] !== dobozId;
 
   // Helper: match selection value against item's old_id (slug) or id
   const findBySelection = (list: readonly any[], sel: any) => {
@@ -1192,6 +1220,11 @@ const ProductConfigurator = () => {
       ...prev,
       szenzorok: preset.szenzorok,
       anyag: preset.anyagId,
+      doboz: requiredDobozByPreset[preset.id] ?? prev.doboz,
+      tapellatas:
+        disabledTapellatasByPreset[preset.id] === prev.tapellatas
+          ? null
+          : prev.tapellatas,
     }));
   };
 
@@ -1300,6 +1333,27 @@ const ProductConfigurator = () => {
                   </button>
                 );
               })}
+              <button
+                type="button"
+                onClick={selectCustomMode}
+                className={`rounded-2xl border-2 p-6 text-left transition-all hover:shadow-lg ${
+                  configMode === "custom"
+                    ? "border-primary bg-primary/10 dark:border-primary dark:bg-primary/5"
+                    : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
+                }`}
+              >
+                <h4 className="mb-2 flex items-center text-lg font-semibold text-black dark:text-white">
+                  <span>Egyedi rendelés</span>
+                  <InfoIcon
+                    description="Saját igények alapján összeállítható konfiguráció"
+                    position="right"
+                    className="ml-2"
+                  />
+                </h4>
+                <p className="text-body text-sm">
+                  Válassza ki a szenzorokat és a burkolatot egyedileg
+                </p>
+              </button>
             </div>
           </div>
         );
@@ -1453,26 +1507,42 @@ const ProductConfigurator = () => {
       case "doboz":
         return (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {dobozok.map((doboz) => (
-              <div
-                key={doboz.id}
-                onClick={() => setSelection({ ...selection, doboz: doboz.id })}
-                className={`cursor-pointer rounded-xl border-2 p-6 transition-all hover:shadow-lg ${
-                  matchSelection(doboz, selection.doboz)
-                    ? "border-primary bg-primary/10"
-                    : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
-                }`}
-              >
-                <div className="mb-3 text-4xl">{doboz.icon}</div>
-                <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
-                  {doboz.name}
-                </h4>
-                <p className="text-body mb-3 text-sm">{doboz.description}</p>
-                <p className="text-primary text-xl font-bold">
-                  {doboz.price.toLocaleString("hu-HU")} Ft
-                </p>
-              </div>
-            ))}
+            {dobozok.map((doboz) => {
+              const isSelected = matchSelection(doboz, selection.doboz);
+              const isDisabled = isDobozDisabled(doboz.id);
+
+              return (
+                <div
+                  key={doboz.id}
+                  onClick={
+                    isDisabled
+                      ? undefined
+                      : () => setSelection({ ...selection, doboz: doboz.id })
+                  }
+                  aria-disabled={isDisabled}
+                  className={`rounded-xl border-2 p-6 transition-all ${
+                    isDisabled
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer hover:shadow-lg"
+                  } ${
+                    isSelected
+                      ? "border-primary bg-primary/10"
+                      : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
+                  }`}
+                >
+                  <div className="mb-3 text-4xl">{doboz.icon}</div>
+                  <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
+                    {doboz.name}
+                  </h4>
+                  <p className="text-body mb-3 text-sm">
+                    {doboz.description}
+                  </p>
+                  <p className="text-primary text-xl font-bold">
+                    {doboz.price.toLocaleString("hu-HU")} Ft
+                  </p>
+                </div>
+              );
+            })}
           </div>
         );
 
@@ -1562,28 +1632,46 @@ const ProductConfigurator = () => {
         return (
           <div className="mx-auto max-w-4xl">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {tapellatasok.map((tap) => (
-                <div
-                  key={tap.id}
-                  onClick={() =>
-                    setSelection({ ...selection, tapellatas: tap.id })
-                  }
-                  className={`cursor-pointer rounded-xl border-2 p-6 transition-all hover:shadow-lg ${
-                    selection.tapellatas === tap.id
-                      ? "border-primary bg-primary/10"
-                      : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
-                  }`}
-                >
-                  <div className="mb-3 text-4xl">{tap.icon}</div>
-                  <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
-                    {tap.name}
-                  </h4>
-                  <p className="text-body mb-3 text-sm">{tap.description}</p>
-                  <p className="text-primary text-xl font-bold">
-                    {tap.price.toLocaleString("hu-HU")} Ft
-                  </p>
-                </div>
-              ))}
+              {tapellatasok.map((tap) => {
+                const isSelected = selection.tapellatas === tap.id;
+                const isDisabled = isTapellatasDisabled(tap.id);
+
+                return (
+                  <div
+                    key={tap.id}
+                    onClick={
+                      isDisabled
+                        ? undefined
+                        : () =>
+                            setSelection({
+                              ...selection,
+                              tapellatas: tap.id,
+                            })
+                    }
+                    aria-disabled={isDisabled}
+                    className={`rounded-xl border-2 p-6 transition-all ${
+                      isDisabled
+                        ? "cursor-not-allowed opacity-50"
+                        : "cursor-pointer hover:shadow-lg"
+                    } ${
+                      isSelected
+                        ? "border-primary bg-primary/10"
+                        : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
+                    }`}
+                  >
+                    <div className="mb-3 text-4xl">{tap.icon}</div>
+                    <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
+                      {tap.name}
+                    </h4>
+                    <p className="text-body mb-3 text-sm">
+                      {tap.description}
+                    </p>
+                    <p className="text-primary text-xl font-bold">
+                      {tap.price.toLocaleString("hu-HU")} Ft
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         );

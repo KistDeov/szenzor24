@@ -42,12 +42,16 @@ function SignInFormInner({ callbackUrl }: { callbackUrl: string }) {
     signIn("credentials", { ...data, redirect: false }).then((callback) => {
       if (callback?.error) {
         toast.error(callback.error);
+        return;
       }
 
-      if (callback?.ok && !callback?.error) {
+      if (callback?.ok) {
         toast.success("Sikeres bejelentkezés!");
         reset();
-        router.push(callbackUrl);
+
+        // Ensure cookies/session are applied before landing.
+        // A full navigation is the most reliable way with App Router + next-auth/react.
+        window.location.assign(callbackUrl);
       }
     });
   }
