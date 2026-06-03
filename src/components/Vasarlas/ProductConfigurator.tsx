@@ -848,21 +848,21 @@ const ProductConfigurator = () => {
     const errors: GuestContactErrors = {};
 
     if (!contact.name.trim()) {
-      errors.name = "A név megadása kötelező";
+      errors.name = "Add meg a teljes nevedet.";
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!contact.email.trim()) {
-      errors.email = "Az email cím megadása kötelező";
+      errors.email = "Add meg az email címedet.";
     } else if (!emailRegex.test(contact.email.trim())) {
-      errors.email = "Érvényes email címet adj meg";
+      errors.email = "Érvényes email címet adj meg.";
     }
 
     const phoneDigits = contact.phone.replace(/\D/g, "");
     if (!contact.phone.trim()) {
-      errors.phone = "A telefonszám megadása kötelező";
+      errors.phone = "Telefonszám pl.: +36 xx 1234567";
     } else if (phoneDigits.length < 9) {
-      errors.phone = "Érvényes telefonszámot adj meg";
+      errors.phone = "Telefonszám pl.: +36 xx 1234567";
     }
 
     if (!contact.acceptAccountTerms) {
@@ -976,9 +976,53 @@ const ProductConfigurator = () => {
   const nextStep = async () => {
     const stepIndex = visibleSteps.findIndex((s) => s.id === currentStep);
 
-    if (currentStep === "szallitas" && isGuestCheckout) {
-      const guestValid = validateGuestContact(selection.guestContact);
-      if (guestValid.isValid) {
+    if (currentStep === "szallitas") {
+      let hasShippingErrors = false;
+
+      if (isGuestCheckout) {
+        const guestValid = validateGuestContact(selection.guestContact);
+        setGuestContactErrors(guestValid.errors);
+        if (!guestValid.isValid) {
+          hasShippingErrors = true;
+        }
+      }
+
+      if (!selection.shippingMode) {
+        toast.error("Válassz szállítási módot!");
+        return;
+      }
+
+      if (selection.shippingMode === "foxpost") {
+        if (!selection.foxpostAutomata) {
+          toast.error("Válassz Foxpost automatát!");
+          return;
+        }
+      } else {
+        const shippingValidation = validateShippingAddress(
+          selection.shippingAddress,
+        );
+        setShippingAddressErrors(shippingValidation.errors);
+        if (!shippingValidation.isValid) {
+          hasShippingErrors = true;
+        }
+
+        if (!selection.billingSame) {
+          const billingValidation = validateShippingAddress(
+            selection.billingAddress,
+          );
+          setBillingAddressErrors(billingValidation.errors);
+          if (!billingValidation.isValid) {
+            hasShippingErrors = true;
+          }
+        }
+      }
+
+      if (hasShippingErrors) {
+        toast.error("Kérlek, javítsd a megjelölt adatokat.");
+        return;
+      }
+
+      if (isGuestCheckout) {
         if (selection.guestContact.acceptAccountTerms) {
           const emailExists = await checkEmailExists(
             selection.guestContact.email,
@@ -1001,7 +1045,10 @@ const ProductConfigurator = () => {
       }
       return;
     }
-    if (stepIndex < visibleSteps.length - 1 && canProceed()) {
+    if (
+      stepIndex < visibleSteps.length - 1 &&
+      (currentStep === "szallitas" || canProceed())
+    ) {
       setCurrentStep(visibleSteps[stepIndex + 1].id);
     }
   };
@@ -1932,13 +1979,18 @@ const ProductConfigurator = () => {
                           oldalon.
                         </span>
                       </label>
+                      {guestContactErrors.acceptAccountTerms && (
+                        <p className="mt-1 text-xs font-medium text-red-500">
+                          {guestContactErrors.acceptAccountTerms}
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <input
                       type="tel"
-                      placeholder="Telefonszám"
+                      placeholder="Telefonszám pl.: +36 xx 1234567"
                       value={selection.guestContact.phone}
                       onChange={(ev) => {
                         const value = ev.target.value;
@@ -2834,9 +2886,9 @@ const ProductConfigurator = () => {
             {currentStep !== "osszesites" ? (
               <button
                 onClick={nextStep}
-                disabled={!canProceed()}
+                disabled={currentStep !== "szallitas" && !canProceed()}
                 className={`rounded-lg px-6 py-3 font-medium transition-all ${
-                  canProceed()
+                  currentStep === "szallitas" || canProceed()
                     ? "bg-primary hover:bg-primary/90 text-white"
                     : "cursor-not-allowed bg-gray-200 text-gray-400 dark:bg-gray-700"
                 }`}
