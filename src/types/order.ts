@@ -50,7 +50,7 @@ export interface ShippingDetails {
   mode: "foxpost" | "hazhoz";
   shippingAddress?: ShippingAddress | null;
   billingSame?: boolean;
-  billingAddress: ShippingAddress;
+  billingAddress?: ShippingAddress | null;
   /** Foxpost automata - régi string formátum (backwards compat) */
   foxpostAutomata?: string | null;
   /** Foxpost automata - teljes adatokkal (az APT finder widgetből) */

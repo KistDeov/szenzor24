@@ -5,6 +5,7 @@ import FsLightbox from "fslightbox-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ALT_MODEL_PATH, PRIMARY_MODEL_PATH } from "@/lib/modelPaths";
+import { loadModelViewer } from "@/utils/loadModelViewer";
 
 const HeroArea = () => {
   const [toggler, setToggler] = useState(false);
@@ -18,9 +19,9 @@ const HeroArea = () => {
   const autoSwitchRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Dinamikusan importáljuk a model-viewer-t
-    import("@google/model-viewer");
-    // Nothing to check — we always use the local model path
+    void loadModelViewer().catch((error) => {
+      console.warn("model-viewer betöltése sikertelen:", error);
+    });
   }, []);
 
   const startAutoSwitch = () => {

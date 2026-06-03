@@ -236,19 +236,28 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!body.shipping || !body.shipping.mode || !body.shipping.billingAddress) {
+    if (!body.shipping || !body.shipping.mode) {
       return NextResponse.json(
         { error: "Hiányzó szállítási adatok" },
         { status: 400 }
       );
     }
 
-    const billing = body.shipping.billingAddress;
-    if (!billing.zip || !billing.city || !billing.street || !billing.houseNumber) {
-      return NextResponse.json(
-        { error: "Hiányos számlázási cím" },
-        { status: 400 }
-      );
+    if (body.shipping.mode === "hazhoz") {
+      if (!body.shipping.billingAddress) {
+        return NextResponse.json(
+          { error: "Hiányos számlázási cím" },
+          { status: 400 }
+        );
+      }
+
+      const billing = body.shipping.billingAddress;
+      if (!billing.zip || !billing.city || !billing.street || !billing.houseNumber) {
+        return NextResponse.json(
+          { error: "Hiányos számlázási cím" },
+          { status: 400 }
+        );
+      }
     }
 
     if (body.shipping.mode === "hazhoz") {
