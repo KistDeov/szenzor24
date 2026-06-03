@@ -22,6 +22,10 @@ declare global {
           alt?: string;
           "auto-rotate"?: boolean | string;
           "camera-controls"?: boolean | string;
+          "min-camera-orbit"?: string;
+          "max-camera-orbit"?: string;
+          "camera-orbit"?: string;
+          "camera-target"?: string;
           crossorigin?: string;
         },
         HTMLElement
@@ -192,23 +196,24 @@ const tetoSzinek = [
 ];
 
 const bormonitorSzinek = [
+  { id: "feher", name: "Fehér", hex: "#f9fafb" },
+  { id: "zold", name: "Zöld", hex: "#22c55e" },
+  { id: "sarga", name: "Sárga", hex: "#eab308" },
+  { id: "piros", name: "Piros", hex: "#ef4444" },
+  { id: "kek", name: "Kék", hex: "#3b82f6" },
   { id: "fekete", name: "Fekete", hex: "#1f2937" },
-  { id: "szurke", name: "Szürke", hex: "#6b7280" },
 ];
 
 const getBormonitorModelSrc = (dobozSzin: string, tetoSzin: string) => {
-  const doboz = dobozSzin === "szurke" ? "szurke" : "fekete";
-  const teto = tetoSzin === "szurke" ? "szurke" : "fekete";
+  const allowed = new Set(bormonitorSzinek.map((szin) => szin.id));
+  const doboz = allowed.has(dobozSzin) ? dobozSzin : "fekete";
+  const teto = allowed.has(tetoSzin) ? tetoSzin : "fekete";
 
   if (doboz === teto) {
-    return `/images/hero/${doboz}.glb`;
+    return `/images/hero/bormonitor/${doboz}.glb`;
   }
 
-  if (doboz === "fekete" && teto === "szurke") {
-    return "/images/hero/szurke-fekete.glb";
-  }
-
-  return "/images/hero/fekete-szurke.glb";
+  return `/images/hero/bormonitor/${teto}-${doboz}.glb`;
 };
 
 // Tápellátás típusok
@@ -706,6 +711,7 @@ const ProductConfigurator = () => {
     isBormonitor
       ? getBormonitorModelSrc(selection.dobozSzin, selection.tetoSzin)
       : `/images/hero/${selection.dobozSzin || "feher"}/${selection.dobozSzin || "feher"}_${selection.tetoSzin || "feher"}.glb`;
+
   const isTapellatasDisabled = (tapellatasId: string) =>
     configMode === "preset" &&
     selectedPresetId !== null &&
