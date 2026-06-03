@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = 'nodejs';
 
-export const POST = async (request) => {
+export const POST = async (request: Request) => {
   const body = await request.json();
   const { token } = body;
 
@@ -11,7 +11,7 @@ export const POST = async (request) => {
     return new NextResponse("Missing Fields", { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
       passwordResetToken: token,
       passwordResetTokenExp: {

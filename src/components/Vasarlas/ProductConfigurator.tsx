@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -10,7 +10,25 @@ import {
   validateShippingAddress,
   type AddressValidation,
 } from "@/utils/validations";
+import { loadModelViewer } from "@/utils/loadModelViewer";
 import InfoIcon from "../ui/InfoIcon"; // tooltip icon for extra explanations
+
+declare global {
+  namespace React.JSX {
+    interface IntrinsicElements {
+      "model-viewer": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & {
+          src?: string;
+          alt?: string;
+          "auto-rotate"?: boolean | string;
+          "camera-controls"?: boolean | string;
+          crossorigin?: string;
+        },
+        HTMLElement
+      >;
+    }
+  }
+}
 
 const formatFoxpostFindme = (value: string) =>
   value
@@ -173,6 +191,26 @@ const tetoSzinek = [
   { id: "fekete", name: "Fekete", hex: "#1f2937" },
 ];
 
+const bormonitorSzinek = [
+  { id: "fekete", name: "Fekete", hex: "#1f2937" },
+  { id: "szurke", name: "Szürke", hex: "#6b7280" },
+];
+
+const getBormonitorModelSrc = (dobozSzin: string, tetoSzin: string) => {
+  const doboz = dobozSzin === "szurke" ? "szurke" : "fekete";
+  const teto = tetoSzin === "szurke" ? "szurke" : "fekete";
+
+  if (doboz === teto) {
+    return `/images/hero/${doboz}.glb`;
+  }
+
+  if (doboz === "fekete" && teto === "szurke") {
+    return "/images/hero/szurke-fekete.glb";
+  }
+
+  return "/images/hero/fekete-szurke.glb";
+};
+
 // Tápellátás típusok
 const tapellatasok = [
   {
@@ -321,6 +359,15 @@ const presetOptions: PresetOption[] = [
     popular: true,
   },
   {
+    id: "bor",
+    label: "Bormonitor",
+    description: "Hő + páratartalom szenzor, normál burkolat",
+    infodescription: "Bortároló / borospince hőmérséklet- és páratartalom-figyelése",
+    szenzorok: ["homerseklet", "paratartalom"],
+    anyagId: "normal_burkolat",
+    popular: true,
+  },
+  {
     id: "akvarium",
     label: "Akvárium",
     description: "Hő + O2 + CO2 szenzor, vízálló burkolat",
@@ -330,6 +377,16 @@ const presetOptions: PresetOption[] = [
     popular: true,
   },
 ];
+
+const disabledTapellatasByPreset: Record<string, string> = {
+  huto: "akkus",
+  bor: "vezetekes",
+};
+
+const requiredDobozByPreset: Record<string, string> = {
+  huto: "muanyag",
+  bor: "muanyag",
+};
 
 type StepId =
   | "mod"
@@ -441,18 +498,18 @@ const ProductConfigurator = () => {
     },
   }));
   type Catalog = {
-    szenzorok: typeof szenzorok;
-    eszkozok: typeof eszkozok;
-    dobozok: typeof dobozok;
-    dobozSzinek: typeof dobozSzinek;
-    tetoSzinek: typeof tetoSzinek;
-    tapellatasok: typeof tapellatasok;
-    elofizetesek: typeof elofizetesek;
-    anyagok: typeof anyagok;
-    presetOptions: typeof presetOptions;
+    szenzorok: ReadonlyArray<(typeof szenzorok)[number]>;
+    eszkozok: ReadonlyArray<(typeof eszkozok)[number]>;
+    dobozok: ReadonlyArray<(typeof dobozok)[number]>;
+    dobozSzinek: ReadonlyArray<(typeof dobozSzinek)[number]>;
+    tetoSzinek: ReadonlyArray<(typeof tetoSzinek)[number]>;
+    tapellatasok: ReadonlyArray<(typeof tapellatasok)[number]>;
+    elofizetesek: ReadonlyArray<(typeof elofizetesek)[number]>;
+    anyagok: ReadonlyArray<(typeof anyagok)[number]>;
+    presetOptions: ReadonlyArray<(typeof presetOptions)[number]>;
     szallitasiArak: typeof SZALLITASI_ARAK;
-    szallitasiModok: typeof szallitasiModok;
-    fizetesiModok: typeof fizetesiModok;
+    szallitasiModok: ReadonlyArray<(typeof szallitasiModok)[number]>;
+    fizetesiModok: ReadonlyArray<(typeof fizetesiModok)[number]>;
   };
 
   const [catalog, setCatalog] = useState<Catalog>({
@@ -482,8 +539,6 @@ const ProductConfigurator = () => {
   const [guestContactErrors, setGuestContactErrors] =
     useState<GuestContactErrors>({});
 
-  const modelViewerRef = useRef<HTMLDivElement>(null);
-
   const isAkkus = selection.tapellatas === "akkus";
   const akkusDobozSzinek = dobozSzinek.filter(
     (szin) => szin.id === "feher" || szin.id === "fekete",
@@ -491,6 +546,26 @@ const ProductConfigurator = () => {
   const akkusTetoSzinek = tetoSzinek.filter(
     (szin) => szin.id === "feher" || szin.id === "fekete",
   );
+  const isBormonitor = selectedPresetId === "bor";
+  const visibleDobozSzinek = isBormonitor
+    ? bormonitorSzinek
+    : isAkkus
+      ? akkusDobozSzinek
+      : dobozSzinek;
+  const visibleTetoSzinek = isBormonitor
+    ? bormonitorSzinek
+    : isAkkus
+      ? akkusTetoSzinek
+      : tetoSzinek;
+  const orderDobozSzinek = isBormonitor ? bormonitorSzinek : catalog.dobozSzinek;
+  const orderTetoSzinek = isBormonitor ? bormonitorSzinek : catalog.tetoSzinek;
+  const shouldClampAkkusColors = isAkkus && !isBormonitor;
+
+  useEffect(() => {
+    void loadModelViewer().catch((error) => {
+      console.warn("model-viewer betöltése sikertelen:", error);
+    });
+  }, []);
 
   useEffect(() => {
     const loadCatalog = async () => {
@@ -500,30 +575,19 @@ const ProductConfigurator = () => {
 
         setCatalog((prev) => ({
           ...prev,
-          szenzorok: (data.sensors ?? prev.szenzorok).map((it: any) => ({
-            ...it,
-            id: String(it.id),
-          })),
-          dobozok: (data.boxes ?? prev.dobozok).map((it: any) => ({
-            ...it,
-            id: String(it.id),
-          })),
-          dobozSzinek: (data.colors ?? [])
-            .filter((c: any) => c.kind === "box")
-            .map((it: any) => ({ ...it, id: String(it.id) })),
-          tetoSzinek: (data.colors ?? [])
-            .filter((c: any) => c.kind === "top")
-            .map((it: any) => ({ ...it, id: String(it.id) })),
-          tapellatasok: (data.powerOptions ?? prev.tapellatasok).map(
-            (it: any) => ({ ...it, id: String(it.id) }),
+          szenzorok: mergeCatalogList(prev.szenzorok, data.sensors),
+          dobozok: mergeCatalogList(prev.dobozok, data.boxes),
+          dobozSzinek: mergeCatalogList(
+            prev.dobozSzinek,
+            (data.colors ?? []).filter((c: any) => c.kind === "box"),
           ),
-          elofizetesek: (data.subscriptions ?? prev.elofizetesek).map(
-            (it: any) => ({ ...it, id: String(it.id) }),
+          tetoSzinek: mergeCatalogList(
+            prev.tetoSzinek,
+            (data.colors ?? []).filter((c: any) => c.kind === "top"),
           ),
-          anyagok: (data.materials ?? prev.anyagok).map((it: any) => ({
-            ...it,
-            id: String(it.id),
-          })),
+          tapellatasok: mergeCatalogList(prev.tapellatasok, data.powerOptions),
+          elofizetesek: mergeCatalogList(prev.elofizetesek, data.subscriptions),
+          anyagok: mergeCatalogList(prev.anyagok, data.materials),
           szallitasiArak: Object.fromEntries(
             (data.shippingPrices ?? []).map((p: any) => [
               String(p.id),
@@ -540,11 +604,8 @@ const ProductConfigurator = () => {
   }, []);
 
   useEffect(() => {
-    import("@google/model-viewer");
-  }, []);
+    if (!shouldClampAkkusColors) return;
 
-  useEffect(() => {
-    if (!isAkkus) return;
     const allowed = new Set(["feher", "fekete"]);
     if (!allowed.has(selection.dobozSzin) || !allowed.has(selection.tetoSzin)) {
       setSelection((prev) => ({
@@ -553,7 +614,7 @@ const ProductConfigurator = () => {
         tetoSzin: allowed.has(prev.tetoSzin) ? prev.tetoSzin : "feher",
       }));
     }
-  }, [isAkkus, selection.dobozSzin, selection.tetoSzin]);
+  }, [shouldClampAkkusColors, selection.dobozSzin, selection.tetoSzin]);
 
   // when component mounts, if we already have a preset selected by default, apply
   useEffect(() => {
@@ -608,20 +669,6 @@ const ProductConfigurator = () => {
     }
   }, []);
 
-  const getModelPath = (box: string, top: string) =>
-    `/images/hero/${box}/${box}_${top}.glb`;
-  const getAkkusModelPath = (box: string, top: string) =>
-    `/images/hero/akkus/${box}/${box}_${top}.glb`;
-  const modelSrc = isAkkus
-    ? getAkkusModelPath(
-        selection.dobozSzin || "feher",
-        selection.tetoSzin || "feher",
-      )
-    : getModelPath(
-        selection.dobozSzin || "feher",
-        selection.tetoSzin || "feher",
-      );
-
   const steps: { id: StepId; title: string; icon: string }[] = [
     { id: "mod", title: "Csomag", icon: "1" },
     { id: "tapellatas", title: "Tápellátás", icon: "2" },
@@ -655,6 +702,19 @@ const ProductConfigurator = () => {
           ),
         )
       : catalog.szenzorok;
+  const previewModelSrc =
+    isBormonitor
+      ? getBormonitorModelSrc(selection.dobozSzin, selection.tetoSzin)
+      : `/images/hero/${selection.dobozSzin || "feher"}/${selection.dobozSzin || "feher"}_${selection.tetoSzin || "feher"}.glb`;
+  const isTapellatasDisabled = (tapellatasId: string) =>
+    configMode === "preset" &&
+    selectedPresetId !== null &&
+    disabledTapellatasByPreset[selectedPresetId] === tapellatasId;
+  const isDobozDisabled = (dobozId: string) =>
+    configMode === "preset" &&
+    selectedPresetId !== null &&
+    requiredDobozByPreset[selectedPresetId] !== undefined &&
+    requiredDobozByPreset[selectedPresetId] !== dobozId;
 
   // Helper: match selection value against item's old_id (slug) or id
   const findBySelection = (list: readonly any[], sel: any) => {
@@ -671,6 +731,50 @@ const ProductConfigurator = () => {
     if (oldId != null && String(oldId) === String(sel)) return true;
     return String(item?.id) === String(sel);
   };
+
+  const mergeCatalogList = <T extends { id: string | number }>(
+    fallback: readonly T[],
+    remoteItems: any[] | undefined,
+  ): T[] =>
+    fallback.map((fallbackItem) => {
+      const fallbackOldId = (fallbackItem as any).old_id;
+      const remoteItem = remoteItems?.find((item) => {
+        return (
+          String(item.id) === String(fallbackItem.id) ||
+          (fallbackOldId != null && String(item.old_id) === String(fallbackOldId))
+        );
+      });
+
+      if (!remoteItem) {
+        return fallbackItem;
+      }
+
+      return {
+        ...fallbackItem,
+        id: String(remoteItem.id ?? fallbackItem.id),
+        old_id: remoteItem.old_id ?? fallbackOldId ?? null,
+        price:
+          typeof remoteItem.price === "number"
+            ? remoteItem.price
+            : (fallbackItem as any).price,
+        sort:
+          typeof remoteItem.sort === "number"
+            ? remoteItem.sort
+            : (fallbackItem as any).sort,
+        isActive:
+          typeof remoteItem.isActive === "boolean"
+            ? remoteItem.isActive
+            : (fallbackItem as any).isActive,
+        hex:
+          typeof remoteItem.hex === "string"
+            ? remoteItem.hex
+            : (fallbackItem as any).hex,
+        kind:
+          typeof remoteItem.kind === "string"
+            ? remoteItem.kind
+            : (fallbackItem as any).kind,
+      } as T;
+    });
 
   const calculateSubtotal = () => {
     let total = 0;
@@ -786,11 +890,6 @@ const ProductConfigurator = () => {
     if (!selection.shippingMode) return false;
 
     if (selection.shippingMode === "foxpost") {
-      if (!isAddressComplete(selection.billingAddress)) return false;
-      const billingValidation = validateShippingAddress(
-        selection.billingAddress,
-      );
-      if (!billingValidation.isValid) return false;
       if (!selection.foxpostAutomata) return false;
       return true;
     }
@@ -942,11 +1041,11 @@ const ProductConfigurator = () => {
       findBySelection(catalog.elofizetesek, "ingyenes") ??
       null;
     const selectedDobozSzin = findBySelection(
-      catalog.dobozSzinek,
+      orderDobozSzinek,
       selection.dobozSzin,
     );
     const selectedTetoSzin = findBySelection(
-      catalog.tetoSzinek,
+      orderTetoSzinek,
       selection.tetoSzin,
     );
 
@@ -970,10 +1069,7 @@ const ProductConfigurator = () => {
 
     if (!isShippingValid()) {
       // Set validation errors for display
-      if (selection.shippingMode === "foxpost") {
-        const billingVal = validateShippingAddress(selection.billingAddress);
-        setBillingAddressErrors(billingVal.errors);
-      } else if (selection.shippingMode === "hazhoz") {
+      if (selection.shippingMode === "hazhoz") {
         const shippingVal = validateShippingAddress(selection.shippingAddress);
         setShippingAddressErrors(shippingVal.errors);
         if (!selection.billingSame) {
@@ -1105,7 +1201,8 @@ const ProductConfigurator = () => {
                 floor: selection.shippingAddress.floor.trim() || null,
                 door: selection.shippingAddress.door.trim() || null,
               }
-            : {
+            : selection.shippingMode === "hazhoz"
+              ? {
                 zip: selection.billingAddress.zip.trim(),
                 city: selection.billingAddress.city.trim(),
                 street: selection.billingAddress.street.trim(),
@@ -1113,7 +1210,8 @@ const ProductConfigurator = () => {
                 stair: selection.billingAddress.stair.trim() || null,
                 floor: selection.billingAddress.floor.trim() || null,
                 door: selection.billingAddress.door.trim() || null,
-              },
+              }
+              : null,
         foxpostAutomata:
           selection.shippingMode === "foxpost" && selection.foxpostAutomata
             ? selection.foxpostAutomata.name
@@ -1188,10 +1286,27 @@ const ProductConfigurator = () => {
 
     setConfigMode("preset");
     setSelectedPresetId(presetId);
+    const isBorPreset = preset.id === "bor";
+    const normalColorIds = new Set(dobozSzinek.map((szin) => szin.id));
     setSelection((prev) => ({
       ...prev,
       szenzorok: preset.szenzorok,
       anyag: preset.anyagId,
+      doboz: requiredDobozByPreset[preset.id] ?? prev.doboz,
+      tapellatas:
+        disabledTapellatasByPreset[preset.id] === prev.tapellatas
+          ? null
+          : prev.tapellatas,
+      dobozSzin: isBorPreset
+        ? "fekete"
+        : normalColorIds.has(prev.dobozSzin)
+          ? prev.dobozSzin
+          : "feher",
+      tetoSzin: isBorPreset
+        ? "fekete"
+        : normalColorIds.has(prev.tetoSzin)
+          ? prev.tetoSzin
+          : "feher",
     }));
   };
 
@@ -1202,6 +1317,12 @@ const ProductConfigurator = () => {
       ...prev,
       szenzorok: [],
       anyag: null,
+      dobozSzin: dobozSzinek.some((szin) => szin.id === prev.dobozSzin)
+        ? prev.dobozSzin
+        : "feher",
+      tetoSzin: tetoSzinek.some((szin) => szin.id === prev.tetoSzin)
+        ? prev.tetoSzin
+        : "feher",
     }));
   };
 
@@ -1300,6 +1421,27 @@ const ProductConfigurator = () => {
                   </button>
                 );
               })}
+              <button
+                type="button"
+                onClick={selectCustomMode}
+                className={`rounded-2xl border-2 p-6 text-left transition-all hover:shadow-lg ${
+                  configMode === "custom"
+                    ? "border-primary bg-primary/10 dark:border-primary dark:bg-primary/5"
+                    : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
+                }`}
+              >
+                <h4 className="mb-2 flex items-center text-lg font-semibold text-black dark:text-white">
+                  <span>Egyedi rendelés</span>
+                  <InfoIcon
+                    description="Saját igények alapján összeállítható konfiguráció"
+                    position="right"
+                    className="ml-2"
+                  />
+                </h4>
+                <p className="text-body text-sm">
+                  Válassza ki a szenzorokat és a burkolatot egyedileg
+                </p>
+              </button>
             </div>
           </div>
         );
@@ -1453,26 +1595,42 @@ const ProductConfigurator = () => {
       case "doboz":
         return (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {dobozok.map((doboz) => (
-              <div
-                key={doboz.id}
-                onClick={() => setSelection({ ...selection, doboz: doboz.id })}
-                className={`cursor-pointer rounded-xl border-2 p-6 transition-all hover:shadow-lg ${
-                  matchSelection(doboz, selection.doboz)
-                    ? "border-primary bg-primary/10"
-                    : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
-                }`}
-              >
-                <div className="mb-3 text-4xl">{doboz.icon}</div>
-                <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
-                  {doboz.name}
-                </h4>
-                <p className="text-body mb-3 text-sm">{doboz.description}</p>
-                <p className="text-primary text-xl font-bold">
-                  {doboz.price.toLocaleString("hu-HU")} Ft
-                </p>
-              </div>
-            ))}
+            {dobozok.map((doboz) => {
+              const isSelected = matchSelection(doboz, selection.doboz);
+              const isDisabled = isDobozDisabled(doboz.id);
+
+              return (
+                <div
+                  key={doboz.id}
+                  onClick={
+                    isDisabled
+                      ? undefined
+                      : () => setSelection({ ...selection, doboz: doboz.id })
+                  }
+                  aria-disabled={isDisabled}
+                  className={`rounded-xl border-2 p-6 transition-all ${
+                    isDisabled
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer hover:shadow-lg"
+                  } ${
+                    isSelected
+                      ? "border-primary bg-primary/10"
+                      : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
+                  }`}
+                >
+                  <div className="mb-3 text-4xl">{doboz.icon}</div>
+                  <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
+                    {doboz.name}
+                  </h4>
+                  <p className="text-body mb-3 text-sm">
+                    {doboz.description}
+                  </p>
+                  <p className="text-primary text-xl font-bold">
+                    {doboz.price.toLocaleString("hu-HU")} Ft
+                  </p>
+                </div>
+              );
+            })}
           </div>
         );
 
@@ -1481,18 +1639,14 @@ const ProductConfigurator = () => {
           <div className="space-y-8">
             {/* 3D Modell előnézet */}
             <div className="mx-auto max-w-md">
-              <div
-                ref={modelViewerRef}
-                dangerouslySetInnerHTML={{
-                  __html: `<model-viewer
-                    src="${modelSrc}"
-                    alt="3D előnézet"
-                    auto-rotate
-                    camera-controls
-                    crossorigin="anonymous"
-                    style="width: 100%; height: 300px;">
-                  </model-viewer>`,
-                }}
+              <model-viewer
+                key={previewModelSrc}
+                src={previewModelSrc}
+                alt="3D előnézet"
+                auto-rotate
+                camera-controls
+                crossorigin="anonymous"
+                style={{ width: "100%", height: "300px" }}
               />
             </div>
 
@@ -1502,11 +1656,11 @@ const ProductConfigurator = () => {
                 Doboz színe
               </h4>
               <div className="flex flex-wrap justify-center gap-3">
-                {(isAkkus ? akkusDobozSzinek : dobozSzinek).map((szin) => (
+                {visibleDobozSzinek.map((szin) => (
                   <button
                     key={szin.id}
                     onClick={() =>
-                      setSelection({ ...selection, dobozSzin: szin.id })
+                      setSelection((prev) => ({ ...prev, dobozSzin: szin.id }))
                     }
                     className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 transition-all ${
                       selection.dobozSzin === szin.id
@@ -1532,11 +1686,11 @@ const ProductConfigurator = () => {
                 Tető színe
               </h4>
               <div className="flex flex-wrap justify-center gap-3">
-                {(isAkkus ? akkusTetoSzinek : tetoSzinek).map((szin) => (
+                {visibleTetoSzinek.map((szin) => (
                   <button
                     key={szin.id}
                     onClick={() =>
-                      setSelection({ ...selection, tetoSzin: szin.id })
+                      setSelection((prev) => ({ ...prev, tetoSzin: szin.id }))
                     }
                     className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 transition-all ${
                       selection.tetoSzin === szin.id
@@ -1562,28 +1716,46 @@ const ProductConfigurator = () => {
         return (
           <div className="mx-auto max-w-4xl">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {tapellatasok.map((tap) => (
-                <div
-                  key={tap.id}
-                  onClick={() =>
-                    setSelection({ ...selection, tapellatas: tap.id })
-                  }
-                  className={`cursor-pointer rounded-xl border-2 p-6 transition-all hover:shadow-lg ${
-                    selection.tapellatas === tap.id
-                      ? "border-primary bg-primary/10"
-                      : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
-                  }`}
-                >
-                  <div className="mb-3 text-4xl">{tap.icon}</div>
-                  <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
-                    {tap.name}
-                  </h4>
-                  <p className="text-body mb-3 text-sm">{tap.description}</p>
-                  <p className="text-primary text-xl font-bold">
-                    {tap.price.toLocaleString("hu-HU")} Ft
-                  </p>
-                </div>
-              ))}
+              {tapellatasok.map((tap) => {
+                const isSelected = selection.tapellatas === tap.id;
+                const isDisabled = isTapellatasDisabled(tap.id);
+
+                return (
+                  <div
+                    key={tap.id}
+                    onClick={
+                      isDisabled
+                        ? undefined
+                        : () =>
+                            setSelection({
+                              ...selection,
+                              tapellatas: tap.id,
+                            })
+                    }
+                    aria-disabled={isDisabled}
+                    className={`rounded-xl border-2 p-6 transition-all ${
+                      isDisabled
+                        ? "cursor-not-allowed opacity-50"
+                        : "cursor-pointer hover:shadow-lg"
+                    } ${
+                      isSelected
+                        ? "border-primary bg-primary/10"
+                        : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
+                    }`}
+                  >
+                    <div className="mb-3 text-4xl">{tap.icon}</div>
+                    <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
+                      {tap.name}
+                    </h4>
+                    <p className="text-body mb-3 text-sm">
+                      {tap.description}
+                    </p>
+                    <p className="text-primary text-xl font-bold">
+                      {tap.price.toLocaleString("hu-HU")} Ft
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         );
@@ -1823,79 +1995,6 @@ const ProductConfigurator = () => {
 
             {selection.shippingMode === "foxpost" && (
               <div className="space-y-4">
-                <p className="text-body text-sm">
-                  Foxpost automata esetén a cím a számlázási cím.
-                </p>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {renderAddressInput(
-                    "Irányítószám",
-                    selection.billingAddress.zip,
-                    "zip",
-                    "billingAddress",
-                    billingAddressErrors.zip,
-                  )}
-                  {renderAddressInput(
-                    "Város",
-                    selection.billingAddress.city,
-                    "city",
-                    "billingAddress",
-                    billingAddressErrors.city,
-                  )}
-                  {renderAddressInput(
-                    "Utca",
-                    selection.billingAddress.street,
-                    "street",
-                    "billingAddress",
-                    billingAddressErrors.street,
-                  )}
-                  {renderAddressInput(
-                    "Házszám",
-                    selection.billingAddress.houseNumber,
-                    "houseNumber",
-                    "billingAddress",
-                    billingAddressErrors.houseNumber,
-                  )}
-                  <input
-                    type="text"
-                    placeholder="Lépcsőház (opcionális)"
-                    value={selection.billingAddress.stair}
-                    onChange={(ev) =>
-                      updateAddressField(
-                        "billingAddress",
-                        "stair",
-                        ev.target.value,
-                      )
-                    }
-                    className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Emelet (opcionális)"
-                    value={selection.billingAddress.floor}
-                    onChange={(ev) =>
-                      updateAddressField(
-                        "billingAddress",
-                        "floor",
-                        ev.target.value,
-                      )
-                    }
-                    className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Ajtó (opcionális)"
-                    value={selection.billingAddress.door}
-                    onChange={(ev) =>
-                      updateAddressField(
-                        "billingAddress",
-                        "door",
-                        ev.target.value,
-                      )
-                    }
-                    className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                  />
-                </div>
-
                 <div className="border-stroke dark:border-stroke-dark dark:bg-dark rounded-xl border bg-white p-4">
                   <p className="text-body mb-3 text-sm">
                     Válassza ki a csomagautomatát a térképes keresőből:
@@ -2145,11 +2244,11 @@ const ProductConfigurator = () => {
           selection.elofizetes,
         );
         const selectedDobozSzin = findBySelection(
-          dobozSzinek,
+          visibleDobozSzinek,
           selection.dobozSzin,
         );
         const selectedTetoSzin = findBySelection(
-          tetoSzinek,
+          visibleTetoSzinek,
           selection.tetoSzin,
         );
         const szenzorokTotal = selectedSzenzorokList.reduce(
@@ -2452,21 +2551,6 @@ const ProductConfigurator = () => {
 
                   {selection.shippingMode === "foxpost" && (
                     <>
-                      <p className="text-body text-sm">
-                        Számlázási cím: {selection.billingAddress.zip}{" "}
-                        {selection.billingAddress.city},{" "}
-                        {selection.billingAddress.street}{" "}
-                        {selection.billingAddress.houseNumber}
-                        {selection.billingAddress.stair
-                          ? `, ${selection.billingAddress.stair}`
-                          : ""}
-                        {selection.billingAddress.floor
-                          ? `, ${selection.billingAddress.floor}`
-                          : ""}
-                        {selection.billingAddress.door
-                          ? `, ${selection.billingAddress.door}`
-                          : ""}
-                      </p>
                       {selection.foxpostAutomata && (
                         <div className="mt-1">
                           <p className="text-sm font-medium text-black dark:text-white">
@@ -2591,9 +2675,9 @@ const ProductConfigurator = () => {
   const selectedElofizetesName =
     findBySelection(elofizetesek, selection.elofizetes)?.name ?? "-";
   const selectedDobozSzinName =
-    findBySelection(dobozSzinek, selection.dobozSzin)?.name ?? "-";
+    findBySelection(visibleDobozSzinek, selection.dobozSzin)?.name ?? "-";
   const selectedTetoSzinName =
-    findBySelection(tetoSzinek, selection.tetoSzin)?.name ?? "-";
+    findBySelection(visibleTetoSzinek, selection.tetoSzin)?.name ?? "-";
   const shippingLabel =
     selection.shippingMode === "foxpost"
       ? "Foxpost automata"

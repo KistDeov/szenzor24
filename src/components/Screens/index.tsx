@@ -1,6 +1,5 @@
 "use client";
 
-import Graphics from "@/components/Screens/Graphics";
 import Image from "next/image";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -47,8 +46,6 @@ const Screens = () => {
             </div>
           </div>
         </div>
-        {/*Graphics*/}
-        <Graphics />
       </section>
     </>
   );

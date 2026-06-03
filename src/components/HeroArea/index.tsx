@@ -5,6 +5,7 @@ import FsLightbox from "fslightbox-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ALT_MODEL_PATH, PRIMARY_MODEL_PATH } from "@/lib/modelPaths";
+import { loadModelViewer } from "@/utils/loadModelViewer";
 
 const HeroArea = () => {
   const [toggler, setToggler] = useState(false);
@@ -18,9 +19,9 @@ const HeroArea = () => {
   const autoSwitchRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Dinamikusan importáljuk a model-viewer-t
-    import("@google/model-viewer");
-    // Nothing to check — we always use the local model path
+    void loadModelViewer().catch((error) => {
+      console.warn("model-viewer betöltése sikertelen:", error);
+    });
   }, []);
 
   const startAutoSwitch = () => {
@@ -65,7 +66,7 @@ const HeroArea = () => {
       // replace the model-viewer node with an image
       const parent = mv.parentElement;
       if (parent) {
-        parent.innerHTML = `<img src="/images/hero/fekete-szurke.glb" alt="Model not available" style="width:100%;height:400px;object-fit:contain"/>`;
+        parent.innerHTML = `<img src="/images/hero/preview.glb" alt="Model not available" style="width:100%;height:400px;object-fit:contain"/>`;
       }
     };
 
