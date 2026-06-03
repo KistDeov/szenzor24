@@ -1,7 +1,7 @@
 const integrations = {
   isSanityEnabled: false,
   isStripeEnabled: true,
-  isAlgoliaEnabled: true,
+  isAlgoliaEnabled: false,
   isMailchimpEnabled: true,
   isAuthEnabled: true,
 };
