@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import Script from "next/script";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -11,6 +12,23 @@ import {
   type AddressValidation,
 } from "@/utils/validations";
 import InfoIcon from "../ui/InfoIcon"; // tooltip icon for extra explanations
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "model-viewer": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & {
+          src?: string;
+          alt?: string;
+          "auto-rotate"?: boolean | string;
+          "camera-controls"?: boolean | string;
+          crossorigin?: string;
+        },
+        HTMLElement
+      >;
+    }
+  }
+}
 
 const formatFoxpostFindme = (value: string) =>
   value
@@ -460,18 +478,18 @@ const ProductConfigurator = () => {
     },
   }));
   type Catalog = {
-    szenzorok: typeof szenzorok;
-    eszkozok: typeof eszkozok;
-    dobozok: typeof dobozok;
-    dobozSzinek: typeof dobozSzinek;
-    tetoSzinek: typeof tetoSzinek;
-    tapellatasok: typeof tapellatasok;
-    elofizetesek: typeof elofizetesek;
-    anyagok: typeof anyagok;
-    presetOptions: typeof presetOptions;
+    szenzorok: ReadonlyArray<(typeof szenzorok)[number]>;
+    eszkozok: ReadonlyArray<(typeof eszkozok)[number]>;
+    dobozok: ReadonlyArray<(typeof dobozok)[number]>;
+    dobozSzinek: ReadonlyArray<(typeof dobozSzinek)[number]>;
+    tetoSzinek: ReadonlyArray<(typeof tetoSzinek)[number]>;
+    tapellatasok: ReadonlyArray<(typeof tapellatasok)[number]>;
+    elofizetesek: ReadonlyArray<(typeof elofizetesek)[number]>;
+    anyagok: ReadonlyArray<(typeof anyagok)[number]>;
+    presetOptions: ReadonlyArray<(typeof presetOptions)[number]>;
     szallitasiArak: typeof SZALLITASI_ARAK;
-    szallitasiModok: typeof szallitasiModok;
-    fizetesiModok: typeof fizetesiModok;
+    szallitasiModok: ReadonlyArray<(typeof szallitasiModok)[number]>;
+    fizetesiModok: ReadonlyArray<(typeof fizetesiModok)[number]>;
   };
 
   const [catalog, setCatalog] = useState<Catalog>({
@@ -501,8 +519,6 @@ const ProductConfigurator = () => {
   const [guestContactErrors, setGuestContactErrors] =
     useState<GuestContactErrors>({});
 
-  const modelViewerRef = useRef<HTMLDivElement>(null);
-
   const isAkkus = selection.tapellatas === "akkus";
   const akkusDobozSzinek = dobozSzinek.filter(
     (szin) => szin.id === "feher" || szin.id === "fekete",
@@ -519,30 +535,19 @@ const ProductConfigurator = () => {
 
         setCatalog((prev) => ({
           ...prev,
-          szenzorok: (data.sensors ?? prev.szenzorok).map((it: any) => ({
-            ...it,
-            id: String(it.id),
-          })),
-          dobozok: (data.boxes ?? prev.dobozok).map((it: any) => ({
-            ...it,
-            id: String(it.id),
-          })),
-          dobozSzinek: (data.colors ?? [])
-            .filter((c: any) => c.kind === "box")
-            .map((it: any) => ({ ...it, id: String(it.id) })),
-          tetoSzinek: (data.colors ?? [])
-            .filter((c: any) => c.kind === "top")
-            .map((it: any) => ({ ...it, id: String(it.id) })),
-          tapellatasok: (data.powerOptions ?? prev.tapellatasok).map(
-            (it: any) => ({ ...it, id: String(it.id) }),
+          szenzorok: mergeCatalogList(prev.szenzorok, data.sensors),
+          dobozok: mergeCatalogList(prev.dobozok, data.boxes),
+          dobozSzinek: mergeCatalogList(
+            prev.dobozSzinek,
+            (data.colors ?? []).filter((c: any) => c.kind === "box"),
           ),
-          elofizetesek: (data.subscriptions ?? prev.elofizetesek).map(
-            (it: any) => ({ ...it, id: String(it.id) }),
+          tetoSzinek: mergeCatalogList(
+            prev.tetoSzinek,
+            (data.colors ?? []).filter((c: any) => c.kind === "top"),
           ),
-          anyagok: (data.materials ?? prev.anyagok).map((it: any) => ({
-            ...it,
-            id: String(it.id),
-          })),
+          tapellatasok: mergeCatalogList(prev.tapellatasok, data.powerOptions),
+          elofizetesek: mergeCatalogList(prev.elofizetesek, data.subscriptions),
+          anyagok: mergeCatalogList(prev.anyagok, data.materials),
           szallitasiArak: Object.fromEntries(
             (data.shippingPrices ?? []).map((p: any) => [
               String(p.id),
@@ -559,11 +564,6 @@ const ProductConfigurator = () => {
   }, []);
 
   useEffect(() => {
-    import("@google/model-viewer");
-  }, []);
-
-  useEffect(() => {
-    if (!isAkkus) return;
     const allowed = new Set(["feher", "fekete"]);
     if (!allowed.has(selection.dobozSzin) || !allowed.has(selection.tetoSzin)) {
       setSelection((prev) => ({
@@ -627,20 +627,6 @@ const ProductConfigurator = () => {
     }
   }, []);
 
-  const getModelPath = (box: string, top: string) =>
-    `/images/hero/${box}/${box}_${top}.glb`;
-  const getAkkusModelPath = (box: string, top: string) =>
-    `/images/hero/akkus/${box}/${box}_${top}.glb`;
-  const modelSrc = isAkkus
-    ? getAkkusModelPath(
-        selection.dobozSzin || "feher",
-        selection.tetoSzin || "feher",
-      )
-    : getModelPath(
-        selection.dobozSzin || "feher",
-        selection.tetoSzin || "feher",
-      );
-
   const steps: { id: StepId; title: string; icon: string }[] = [
     { id: "mod", title: "Csomag", icon: "1" },
     { id: "tapellatas", title: "Tápellátás", icon: "2" },
@@ -699,6 +685,50 @@ const ProductConfigurator = () => {
     if (oldId != null && String(oldId) === String(sel)) return true;
     return String(item?.id) === String(sel);
   };
+
+  const mergeCatalogList = <T extends { id: string | number }>(
+    fallback: readonly T[],
+    remoteItems: any[] | undefined,
+  ): T[] =>
+    fallback.map((fallbackItem) => {
+      const fallbackOldId = (fallbackItem as any).old_id;
+      const remoteItem = remoteItems?.find((item) => {
+        return (
+          String(item.id) === String(fallbackItem.id) ||
+          (fallbackOldId != null && String(item.old_id) === String(fallbackOldId))
+        );
+      });
+
+      if (!remoteItem) {
+        return fallbackItem;
+      }
+
+      return {
+        ...fallbackItem,
+        id: String(remoteItem.id ?? fallbackItem.id),
+        old_id: remoteItem.old_id ?? fallbackOldId ?? null,
+        price:
+          typeof remoteItem.price === "number"
+            ? remoteItem.price
+            : (fallbackItem as any).price,
+        sort:
+          typeof remoteItem.sort === "number"
+            ? remoteItem.sort
+            : (fallbackItem as any).sort,
+        isActive:
+          typeof remoteItem.isActive === "boolean"
+            ? remoteItem.isActive
+            : (fallbackItem as any).isActive,
+        hex:
+          typeof remoteItem.hex === "string"
+            ? remoteItem.hex
+            : (fallbackItem as any).hex,
+        kind:
+          typeof remoteItem.kind === "string"
+            ? remoteItem.kind
+            : (fallbackItem as any).kind,
+      } as T;
+    });
 
   const calculateSubtotal = () => {
     let total = 0;
@@ -1551,18 +1581,12 @@ const ProductConfigurator = () => {
           <div className="space-y-8">
             {/* 3D Modell előnézet */}
             <div className="mx-auto max-w-md">
-              <div
-                ref={modelViewerRef}
-                dangerouslySetInnerHTML={{
-                  __html: `<model-viewer
-                    src="${modelSrc}"
-                    alt="3D előnézet"
-                    auto-rotate
-                    camera-controls
-                    crossorigin="anonymous"
-                    style="width: 100%; height: 300px;">
-                  </model-viewer>`,
-                }}
+              <model-viewer
+                src="/images/hero/preview.glb"
+                alt="3D előnézet"
+                auto-rotate
+                camera-controls
+                style={{ width: "100%", height: "300px" }}
               />
             </div>
 
@@ -2733,7 +2757,13 @@ const ProductConfigurator = () => {
   }
 
   return (
-    <section className="relative z-10">
+    <>
+      <Script
+        src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"
+        type="module"
+        strategy="lazyOnload"
+      />
+      <section className="relative z-10">
       <div className="container">
         {/* Fejléc */}
         <div
@@ -2929,6 +2959,7 @@ const ProductConfigurator = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 
