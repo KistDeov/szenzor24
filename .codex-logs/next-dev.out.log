@@ -66,3 +66,53 @@ Creating turbopack project {
 [dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
  ✓ Compiled in 726ms
  ✓ Compiled in 828ms
+ GET /api/auth/session 200 in 424ms
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /vasarlas 200 in 320ms
+ ✓ Compiled in 807ms
+ ✓ Compiled in 764ms
+ GET /api/auth/session 200 in 444ms
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 530ms
+ GET /adatkezelesi-tajekoztato 404 in 665ms
+ GET /adatkezelesi-tajekoztato 404 in 518ms
+ GET /vasarlas 200 in 1141ms
+ GET /api/catalog 200 in 491ms
+ GET /api/auth/session 200 in 471ms
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ ✓ Compiled in 752ms
+ GET /vasarlas 200 in 563ms
+ GET /vasarlas 200 in 173ms
+ ○ Compiling /adatkezelesi-tajekoztato ...
+ ✓ Compiled /adatkezelesi-tajekoztato in 519ms
+ GET /adatkezelesi-tajekoztato 200 in 941ms
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /api/auth/session 200 in 561ms
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /adatkezelesi-tajekoztato 200 in 157ms
+ GET /api/auth/session 200 in 372ms
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /adatkezelesi-tajekoztato 200 in 265ms
+ GET /api/auth/session 200 in 384ms
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /adatkezelesi-tajekoztato 200 in 150ms
+ ✓ Compiled in 706ms
+ GET / 200 in 400ms
+ GET /vasarlas 200 in 185ms
+ GET /api/catalog 200 in 579ms
+ GET /api/catalog 200 in 355ms
+ ✓ Compiled in 751ms
+ GET /vasarlas 200 in 166ms
+ GET /api/auth/session 200 in 384ms
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+ ✓ Compiled /adatkezelesi-tajekoztato in 77ms
+ GET /adatkezelesi-tajekoztato 200 in 285ms
