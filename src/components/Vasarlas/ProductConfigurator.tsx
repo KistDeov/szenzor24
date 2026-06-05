@@ -26,6 +26,7 @@ declare global {
           "max-camera-orbit"?: string;
           "camera-orbit"?: string;
           "camera-target"?: string;
+          orientation?: string;
           crossorigin?: string;
         },
         HTMLElement
@@ -214,6 +215,22 @@ const getBormonitorModelSrc = (dobozSzin: string, tetoSzin: string) => {
   }
 
   return `/images/hero/bormonitor/${teto}-${doboz}.glb`;
+};
+
+const getPresetColorModelSrc = (
+  presetFolder: string,
+  dobozSzin: string,
+  tetoSzin: string,
+) => {
+  const allowed = new Set(dobozSzinek.map((szin) => szin.id));
+  const doboz = allowed.has(dobozSzin) ? dobozSzin : "feher";
+  const teto = allowed.has(tetoSzin) ? tetoSzin : "feher";
+
+  if (doboz === teto) {
+    return `/images/hero/${presetFolder}/${doboz}.glb`;
+  }
+
+  return `/images/hero/${presetFolder}/${teto}-${doboz}.glb`;
 };
 
 // Tápellátás típusok
@@ -545,6 +562,7 @@ const ProductConfigurator = () => {
     useState<GuestContactErrors>({});
 
   const isAkkus = selection.tapellatas === "akkus";
+  const isHutoPreset = selectedPresetId === "huto";
   const akkusDobozSzinek = dobozSzinek.filter(
     (szin) => szin.id === "feher" || szin.id === "fekete",
   );
@@ -554,11 +572,15 @@ const ProductConfigurator = () => {
   const isBormonitor = selectedPresetId === "bor";
   const visibleDobozSzinek = isBormonitor
     ? bormonitorSzinek
+    : isHutoPreset && selection.tetoSzin === "zold"
+      ? dobozSzinek.filter((szin) => szin.id === "zold")
     : isAkkus
       ? akkusDobozSzinek
       : dobozSzinek;
   const visibleTetoSzinek = isBormonitor
     ? bormonitorSzinek
+    : isHutoPreset && selection.dobozSzin !== "zold"
+      ? tetoSzinek.filter((szin) => szin.id !== "zold")
     : isAkkus
       ? akkusTetoSzinek
       : tetoSzinek;
@@ -710,6 +732,12 @@ const ProductConfigurator = () => {
   const previewModelSrc =
     isBormonitor
       ? getBormonitorModelSrc(selection.dobozSzin, selection.tetoSzin)
+      : selectedPresetId === "huto"
+        ? getPresetColorModelSrc(
+            "huto",
+            selection.dobozSzin,
+            selection.tetoSzin,
+          )
       : `/images/hero/${selection.dobozSzin || "feher"}/${selection.dobozSzin || "feher"}_${selection.tetoSzin || "feher"}.glb`;
 
   const isTapellatasDisabled = (tapellatasId: string) =>
@@ -1698,6 +1726,7 @@ const ProductConfigurator = () => {
                 alt="3D előnézet"
                 auto-rotate
                 camera-controls
+                orientation={isHutoPreset ? "180deg 180deg 0deg" : undefined}
                 crossorigin="anonymous"
                 style={{ width: "100%", height: "300px" }}
               />
@@ -1713,7 +1742,16 @@ const ProductConfigurator = () => {
                   <button
                     key={szin.id}
                     onClick={() =>
-                      setSelection((prev) => ({ ...prev, dobozSzin: szin.id }))
+                      setSelection((prev) => ({
+                        ...prev,
+                        dobozSzin: szin.id,
+                        tetoSzin:
+                          isHutoPreset &&
+                          prev.tetoSzin === "zold" &&
+                          szin.id !== "zold"
+                            ? "feher"
+                            : prev.tetoSzin,
+                      }))
                     }
                     className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 transition-all ${
                       selection.dobozSzin === szin.id
@@ -1743,7 +1781,16 @@ const ProductConfigurator = () => {
                   <button
                     key={szin.id}
                     onClick={() =>
-                      setSelection((prev) => ({ ...prev, tetoSzin: szin.id }))
+                      setSelection((prev) => ({
+                        ...prev,
+                        tetoSzin: szin.id,
+                        dobozSzin:
+                          isHutoPreset &&
+                          szin.id === "zold" &&
+                          prev.dobozSzin !== "zold"
+                            ? "zold"
+                            : prev.dobozSzin,
+                      }))
                     }
                     className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 transition-all ${
                       selection.tetoSzin === szin.id
