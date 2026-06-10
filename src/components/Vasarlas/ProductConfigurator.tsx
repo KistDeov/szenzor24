@@ -22,6 +22,11 @@ declare global {
           alt?: string;
           "auto-rotate"?: boolean | string;
           "camera-controls"?: boolean | string;
+          "min-camera-orbit"?: string;
+          "max-camera-orbit"?: string;
+          "camera-orbit"?: string;
+          "camera-target"?: string;
+          orientation?: string;
           crossorigin?: string;
         },
         HTMLElement
@@ -192,23 +197,40 @@ const tetoSzinek = [
 ];
 
 const bormonitorSzinek = [
+  { id: "feher", name: "Fehér", hex: "#f9fafb" },
+  { id: "zold", name: "Zöld", hex: "#22c55e" },
+  { id: "sarga", name: "Sárga", hex: "#eab308" },
+  { id: "piros", name: "Piros", hex: "#ef4444" },
+  { id: "kek", name: "Kék", hex: "#3b82f6" },
   { id: "fekete", name: "Fekete", hex: "#1f2937" },
-  { id: "szurke", name: "Szürke", hex: "#6b7280" },
 ];
 
 const getBormonitorModelSrc = (dobozSzin: string, tetoSzin: string) => {
-  const doboz = dobozSzin === "szurke" ? "szurke" : "fekete";
-  const teto = tetoSzin === "szurke" ? "szurke" : "fekete";
+  const allowed = new Set(bormonitorSzinek.map((szin) => szin.id));
+  const doboz = allowed.has(dobozSzin) ? dobozSzin : "fekete";
+  const teto = allowed.has(tetoSzin) ? tetoSzin : "fekete";
 
   if (doboz === teto) {
-    return `/images/hero/${doboz}.glb`;
+    return `/images/hero/bormonitor/${doboz}.glb`;
   }
 
-  if (doboz === "fekete" && teto === "szurke") {
-    return "/images/hero/szurke-fekete.glb";
+  return `/images/hero/bormonitor/${teto}-${doboz}.glb`;
+};
+
+const getPresetColorModelSrc = (
+  presetFolder: string,
+  dobozSzin: string,
+  tetoSzin: string,
+) => {
+  const allowed = new Set(dobozSzinek.map((szin) => szin.id));
+  const doboz = allowed.has(dobozSzin) ? dobozSzin : "feher";
+  const teto = allowed.has(tetoSzin) ? tetoSzin : "feher";
+
+  if (doboz === teto) {
+    return `/images/hero/${presetFolder}/${doboz}.glb`;
   }
 
-  return "/images/hero/fekete-szurke.glb";
+  return `/images/hero/${presetFolder}/${teto}-${doboz}.glb`;
 };
 
 // Tápellátás típusok
@@ -540,6 +562,7 @@ const ProductConfigurator = () => {
     useState<GuestContactErrors>({});
 
   const isAkkus = selection.tapellatas === "akkus";
+  const isHutoPreset = selectedPresetId === "huto";
   const akkusDobozSzinek = dobozSzinek.filter(
     (szin) => szin.id === "feher" || szin.id === "fekete",
   );
@@ -549,11 +572,15 @@ const ProductConfigurator = () => {
   const isBormonitor = selectedPresetId === "bor";
   const visibleDobozSzinek = isBormonitor
     ? bormonitorSzinek
+    : isHutoPreset && selection.tetoSzin === "zold"
+      ? dobozSzinek.filter((szin) => szin.id === "zold")
     : isAkkus
       ? akkusDobozSzinek
       : dobozSzinek;
   const visibleTetoSzinek = isBormonitor
     ? bormonitorSzinek
+    : isHutoPreset && selection.dobozSzin !== "zold"
+      ? tetoSzinek.filter((szin) => szin.id !== "zold")
     : isAkkus
       ? akkusTetoSzinek
       : tetoSzinek;
@@ -705,7 +732,14 @@ const ProductConfigurator = () => {
   const previewModelSrc =
     isBormonitor
       ? getBormonitorModelSrc(selection.dobozSzin, selection.tetoSzin)
+      : selectedPresetId === "huto"
+        ? getPresetColorModelSrc(
+            "huto",
+            selection.dobozSzin,
+            selection.tetoSzin,
+          )
       : `/images/hero/${selection.dobozSzin || "feher"}/${selection.dobozSzin || "feher"}_${selection.tetoSzin || "feher"}.glb`;
+
   const isTapellatasDisabled = (tapellatasId: string) =>
     configMode === "preset" &&
     selectedPresetId !== null &&
@@ -842,21 +876,21 @@ const ProductConfigurator = () => {
     const errors: GuestContactErrors = {};
 
     if (!contact.name.trim()) {
-      errors.name = "A név megadása kötelező";
+      errors.name = "Add meg a teljes nevedet.";
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!contact.email.trim()) {
-      errors.email = "Az email cím megadása kötelező";
+      errors.email = "Add meg az email címedet.";
     } else if (!emailRegex.test(contact.email.trim())) {
-      errors.email = "Érvényes email címet adj meg";
+      errors.email = "Érvényes email címet adj meg.";
     }
 
     const phoneDigits = contact.phone.replace(/\D/g, "");
     if (!contact.phone.trim()) {
-      errors.phone = "A telefonszám megadása kötelező";
+      errors.phone = "Telefonszám pl.: +36 xx 1234567";
     } else if (phoneDigits.length < 9) {
-      errors.phone = "Érvényes telefonszámot adj meg";
+      errors.phone = "Telefonszám pl.: +36 xx 1234567";
     }
 
     if (!contact.acceptAccountTerms) {
@@ -970,9 +1004,53 @@ const ProductConfigurator = () => {
   const nextStep = async () => {
     const stepIndex = visibleSteps.findIndex((s) => s.id === currentStep);
 
-    if (currentStep === "szallitas" && isGuestCheckout) {
-      const guestValid = validateGuestContact(selection.guestContact);
-      if (guestValid.isValid) {
+    if (currentStep === "szallitas") {
+      let hasShippingErrors = false;
+
+      if (isGuestCheckout) {
+        const guestValid = validateGuestContact(selection.guestContact);
+        setGuestContactErrors(guestValid.errors);
+        if (!guestValid.isValid) {
+          hasShippingErrors = true;
+        }
+      }
+
+      if (!selection.shippingMode) {
+        toast.error("Válassz szállítási módot!");
+        return;
+      }
+
+      if (selection.shippingMode === "foxpost") {
+        if (!selection.foxpostAutomata) {
+          toast.error("Válassz Foxpost automatát!");
+          return;
+        }
+      } else {
+        const shippingValidation = validateShippingAddress(
+          selection.shippingAddress,
+        );
+        setShippingAddressErrors(shippingValidation.errors);
+        if (!shippingValidation.isValid) {
+          hasShippingErrors = true;
+        }
+
+        if (!selection.billingSame) {
+          const billingValidation = validateShippingAddress(
+            selection.billingAddress,
+          );
+          setBillingAddressErrors(billingValidation.errors);
+          if (!billingValidation.isValid) {
+            hasShippingErrors = true;
+          }
+        }
+      }
+
+      if (hasShippingErrors) {
+        toast.error("Kérlek, javítsd a megjelölt adatokat.");
+        return;
+      }
+
+      if (isGuestCheckout) {
         if (selection.guestContact.acceptAccountTerms) {
           const emailExists = await checkEmailExists(
             selection.guestContact.email,
@@ -995,7 +1073,10 @@ const ProductConfigurator = () => {
       }
       return;
     }
-    if (stepIndex < visibleSteps.length - 1 && canProceed()) {
+    if (
+      stepIndex < visibleSteps.length - 1 &&
+      (currentStep === "szallitas" || canProceed())
+    ) {
       setCurrentStep(visibleSteps[stepIndex + 1].id);
     }
   };
@@ -1310,22 +1391,6 @@ const ProductConfigurator = () => {
     }));
   };
 
-  const selectCustomMode = () => {
-    setConfigMode("custom");
-    setSelectedPresetId(null);
-    setSelection((prev) => ({
-      ...prev,
-      szenzorok: [],
-      anyag: null,
-      dobozSzin: dobozSzinek.some((szin) => szin.id === prev.dobozSzin)
-        ? prev.dobozSzin
-        : "feher",
-      tetoSzin: tetoSzinek.some((szin) => szin.id === prev.tetoSzin)
-        ? prev.tetoSzin
-        : "feher",
-    }));
-  };
-
   const updateAddressField = (
     target: "shippingAddress" | "billingAddress",
     field: keyof Selection["shippingAddress"],
@@ -1421,27 +1486,6 @@ const ProductConfigurator = () => {
                   </button>
                 );
               })}
-              <button
-                type="button"
-                onClick={selectCustomMode}
-                className={`rounded-2xl border-2 p-6 text-left transition-all hover:shadow-lg ${
-                  configMode === "custom"
-                    ? "border-primary bg-primary/10 dark:border-primary dark:bg-primary/5"
-                    : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
-                }`}
-              >
-                <h4 className="mb-2 flex items-center text-lg font-semibold text-black dark:text-white">
-                  <span>Egyedi rendelés</span>
-                  <InfoIcon
-                    description="Saját igények alapján összeállítható konfiguráció"
-                    position="right"
-                    className="ml-2"
-                  />
-                </h4>
-                <p className="text-body text-sm">
-                  Válassza ki a szenzorokat és a burkolatot egyedileg
-                </p>
-              </button>
             </div>
           </div>
         );
@@ -1645,6 +1689,7 @@ const ProductConfigurator = () => {
                 alt="3D előnézet"
                 auto-rotate
                 camera-controls
+                orientation={isHutoPreset ? "180deg 180deg 0deg" : undefined}
                 crossorigin="anonymous"
                 style={{ width: "100%", height: "300px" }}
               />
@@ -1660,7 +1705,16 @@ const ProductConfigurator = () => {
                   <button
                     key={szin.id}
                     onClick={() =>
-                      setSelection((prev) => ({ ...prev, dobozSzin: szin.id }))
+                      setSelection((prev) => ({
+                        ...prev,
+                        dobozSzin: szin.id,
+                        tetoSzin:
+                          isHutoPreset &&
+                          prev.tetoSzin === "zold" &&
+                          szin.id !== "zold"
+                            ? "feher"
+                            : prev.tetoSzin,
+                      }))
                     }
                     className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 transition-all ${
                       selection.dobozSzin === szin.id
@@ -1690,7 +1744,16 @@ const ProductConfigurator = () => {
                   <button
                     key={szin.id}
                     onClick={() =>
-                      setSelection((prev) => ({ ...prev, tetoSzin: szin.id }))
+                      setSelection((prev) => ({
+                        ...prev,
+                        tetoSzin: szin.id,
+                        dobozSzin:
+                          isHutoPreset &&
+                          szin.id === "zold" &&
+                          prev.dobozSzin !== "zold"
+                            ? "zold"
+                            : prev.dobozSzin,
+                      }))
                     }
                     className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 transition-all ${
                       selection.tetoSzin === szin.id
@@ -1926,13 +1989,18 @@ const ProductConfigurator = () => {
                           oldalon.
                         </span>
                       </label>
+                      {guestContactErrors.acceptAccountTerms && (
+                        <p className="mt-1 text-xs font-medium text-red-500">
+                          {guestContactErrors.acceptAccountTerms}
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <input
                       type="tel"
-                      placeholder="Telefonszám"
+                      placeholder="Telefonszám pl.: +36 xx 1234567"
                       value={selection.guestContact.phone}
                       onChange={(ev) => {
                         const value = ev.target.value;
@@ -2828,9 +2896,9 @@ const ProductConfigurator = () => {
             {currentStep !== "osszesites" ? (
               <button
                 onClick={nextStep}
-                disabled={!canProceed()}
+                disabled={currentStep !== "szallitas" && !canProceed()}
                 className={`rounded-lg px-6 py-3 font-medium transition-all ${
-                  canProceed()
+                  currentStep === "szallitas" || canProceed()
                     ? "bg-primary hover:bg-primary/90 text-white"
                     : "cursor-not-allowed bg-gray-200 text-gray-400 dark:bg-gray-700"
                 }`}

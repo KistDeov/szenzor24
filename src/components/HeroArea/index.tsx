@@ -157,6 +157,7 @@ const HeroArea = () => {
                           alt="3D model"
                           auto-rotate
                           camera-controls
+                          orientation="${modelSrc === modelAPath ? "180deg 180deg 0deg" : "0deg 0deg 0deg"}"
                           crossorigin="anonymous"
                           style="width: 100%; height: 550px;">
                         </model-viewer>`,
