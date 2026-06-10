@@ -1391,22 +1391,6 @@ const ProductConfigurator = () => {
     }));
   };
 
-  const selectCustomMode = () => {
-    setConfigMode("custom");
-    setSelectedPresetId(null);
-    setSelection((prev) => ({
-      ...prev,
-      szenzorok: [],
-      anyag: null,
-      dobozSzin: dobozSzinek.some((szin) => szin.id === prev.dobozSzin)
-        ? prev.dobozSzin
-        : "feher",
-      tetoSzin: tetoSzinek.some((szin) => szin.id === prev.tetoSzin)
-        ? prev.tetoSzin
-        : "feher",
-    }));
-  };
-
   const updateAddressField = (
     target: "shippingAddress" | "billingAddress",
     field: keyof Selection["shippingAddress"],
@@ -1502,27 +1486,6 @@ const ProductConfigurator = () => {
                   </button>
                 );
               })}
-              <button
-                type="button"
-                onClick={selectCustomMode}
-                className={`rounded-2xl border-2 p-6 text-left transition-all hover:shadow-lg ${
-                  configMode === "custom"
-                    ? "border-primary bg-primary/10 dark:border-primary dark:bg-primary/5"
-                    : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
-                }`}
-              >
-                <h4 className="mb-2 flex items-center text-lg font-semibold text-black dark:text-white">
-                  <span>Egyedi rendelés</span>
-                  <InfoIcon
-                    description="Saját igények alapján összeállítható konfiguráció"
-                    position="right"
-                    className="ml-2"
-                  />
-                </h4>
-                <p className="text-body text-sm">
-                  Válassza ki a szenzorokat és a burkolatot egyedileg
-                </p>
-              </button>
             </div>
           </div>
         );
