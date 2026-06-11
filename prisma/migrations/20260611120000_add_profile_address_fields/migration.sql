@@ -1,5 +1,0 @@
-ALTER TABLE `users_new`
-  ADD COLUMN `house_number` VARCHAR(32) NULL,
-  ADD COLUMN `stair` VARCHAR(32) NULL,
-  ADD COLUMN `floor` VARCHAR(32) NULL,
-  ADD COLUMN `door` VARCHAR(32) NULL;

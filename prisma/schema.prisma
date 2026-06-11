@@ -151,10 +151,6 @@ model User {
   postcode               Int?
   city                   String?           @db.VarChar(255)
   street                 String?           @db.VarChar(255)
-  house_number           String?           @db.VarChar(32)
-  stair                  String?           @db.VarChar(32)
-  floor                  String?           @db.VarChar(32)
-  door                   String?           @db.VarChar(32)
   email                  String?           @unique(map: "email_unique_index") @db.VarChar(255)
   phone                  String?           @db.VarChar(255)
   password               String?           @db.VarChar(255)
