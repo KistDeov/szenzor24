@@ -185,6 +185,8 @@ FIZETÉSI MÓDOK:
 export async function POST(request: Request) {
   try {
     const body: OrderPayload = await request.json();
+    const requestOrigin = new URL(request.url).origin;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || requestOrigin;
 
     // DEBUG: Rendelés JSON logolása a terminálba
     console.log("=== ÚJ RENDELÉS ===");
@@ -418,8 +420,8 @@ export async function POST(request: Request) {
             shippingFee: shippingFee.toString(),
             total: total.toString(),
           },
-          success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vasarlas/sikeres?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/vasarlas`
+          success_url: `${siteUrl}/vasarlas/sikeres?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${siteUrl}/vasarlas`
         });
 
         return NextResponse.json({ 
@@ -466,10 +468,10 @@ console.error("❌ Email küldési hiba:", emailError);
 }
 
 // 2. Rendelés továbbítása az Express backendnek (App2) - opcionális
-const expressApiUrl = process.env.NEXT_PUBLIC_ORDER_API_URL;
-if (expressApiUrl) {
-try {
-console.log("🚀 Rendelés továbbítása az Express szerver felé...");
+    const expressApiUrl = process.env.NEXT_PUBLIC_ORDER_API_URL;
+    if (expressApiUrl) {
+      try {
+        console.log("🚀 Rendelés továbbítása az Express szerver felé...");
 
 const app2Response = await fetch(expressApiUrl, {
 method: "POST",
@@ -477,30 +479,27 @@ headers: { "Content-Type": "application/json" },
 body: JSON.stringify(body),
 });
 
-if (!app2Response.ok) {
-const errorText = await app2Response.text();
-console.error("❌ Express hiba válasz:", errorText);
-throw new Error(`Express hiba: ${app2Response.status}`);
-}
+        if (!app2Response.ok) {
+          const errorText = await app2Response.text();
+          console.error("❌ Express hiba válasz:", errorText);
+          console.warn(`Express backend hibával válaszolt (${app2Response.status}), de a rendelés feldolgozása folytatódik.`);
+        }
 
-console.log("✅ Express szerver sikeresen fogadta a rendelést!");
-} catch (app2Error) {
-console.error("❌ Hiba az Express szerver felé továbbításkor:", app2Error);
-return NextResponse.json(
-{ error: "Hiba a rendelés mentésekor (Express)" },
-{ status: 500 }
-);
-}
-} else {
-console.warn("⚠️ NEXT_PUBLIC_ORDER_API_URL nincs beállítva, Express továbbítás kihagyva.");
-}
+        console.log("✅ Express szerver sikeresen fogadta a rendelést!");
+      } catch (app2Error) {
+        console.error("❌ Hiba az Express szerver felé továbbításkor:", app2Error);
+        console.warn("Az Express továbbítás kimaradt, de a rendelés nem áll meg miatta.");
+      }
+    } else {
+      console.warn("⚠️ NEXT_PUBLIC_ORDER_API_URL nincs beállítva, Express továbbítás kihagyva.");
+    }
 
 // 3. Visszatérés a frontendnek utalás esetén
 if (body.payment.mode === "utalas") {
 return NextResponse.json({
 success: true,
 message: "Rendelés fogadva - Banki átutalásra vár",
-url: `${process.env.NEXT_PUBLIC_SITE_URL}/vasarlas/sikeres`,
+url: `${siteUrl}/vasarlas/sikeres`,
 order: orderWithCalculation,
 });
 }
