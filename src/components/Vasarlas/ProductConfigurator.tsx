@@ -1378,7 +1378,9 @@ const ProductConfigurator = () => {
         : {}),
     };
     const orderApiUrl =
-      process.env.NEXT_PUBLIC_ORDER_API_URL_LOCAL || "/api/order";
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXT_PUBLIC_ORDER_API_URL_LOCAL || "/api/order"
+        : "/api/order";
 
     try {
       const { data } = await axios.post(orderApiUrl, orderPayload);
