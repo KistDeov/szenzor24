@@ -204,7 +204,13 @@ const Header = () => {
                 <div className="mt-6 lg:hidden">
                   {session ? (
                     <div className="flex flex-col items-center gap-3">
-                      <p className="text-base text-black dark:text-white">{session?.user?.name}</p>
+                      <Link
+                        href="/profil"
+                        onClick={() => setNavbarOpen(false)}
+                        className="text-base text-black hover:text-primary dark:text-white dark:hover:text-primary"
+                      >
+                        {session?.user?.name}
+                      </Link>
                       <button
                         onClick={() => { signOut(); setNavbarOpen(false); }}
                         className="w-[200px] bg-primary hover:bg-primary/90 rounded-md px-6 py-3 text-base font-medium text-white"
@@ -270,9 +276,12 @@ const Header = () => {
 
               {session ? (
                 <div className="hidden items-center sm:flex">
-                  <p className="mx-3 text-black dark:text-white">
+                  <Link
+                    href="/profil"
+                    className="mx-3 text-black hover:text-primary dark:text-white dark:hover:text-primary"
+                  >
                     {session?.user?.name}
-                  </p>
+                  </Link>
 
                   <button
                     onClick={() => signOut()}
