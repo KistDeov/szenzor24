@@ -18,7 +18,8 @@ export function passwordValidation(val: string) {
  * Hungarian postal code validation (4 digits)
  */
 export function postalCodeValidation(value: string): boolean {
-  return /^\d{4}$/.test(value.trim());
+  const digitsOnly = value.replace(/\D/g, "");
+  return /^\d{4}$/.test(digitsOnly);
 }
 
 /**
@@ -26,23 +27,15 @@ export function postalCodeValidation(value: string): boolean {
  */
 export function cityValidation(value: string): boolean {
   const trimmed = value.trim();
-  return trimmed.length >= 2 && /^[a-zA-ZáéíóöőüűßÁÉÍÓÖŐÜŰ\s\-\.]+$/.test(trimmed);
+  return trimmed.length >= 2 && /^[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\s\-\.]+$/.test(trimmed);
 }
 
 /**
- * Street name validation (minimum 2 characters)
+ * Street / public area name validation (minimum 2 characters)
  */
 export function streetValidation(value: string): boolean {
   const trimmed = value.trim();
   return trimmed.length >= 2;
-}
-
-/**
- * House number validation (not empty, contains alphanumeric and allowed special chars)
- */
-export function houseNumberValidation(value: string): boolean {
-  const trimmed = value.trim();
-  return trimmed.length > 0 && /^[0-9a-zA-Z\/\-\.]+$/.test(trimmed);
 }
 
 /**
@@ -54,7 +47,6 @@ export interface AddressValidation {
     zip?: string;
     city?: string;
     street?: string;
-    houseNumber?: string;
   };
 }
 
@@ -62,7 +54,6 @@ export function validateShippingAddress(address: {
   zip: string;
   city: string;
   street: string;
-  houseNumber: string;
 }): AddressValidation {
   const errors: AddressValidation["errors"] = {};
 
@@ -75,11 +66,7 @@ export function validateShippingAddress(address: {
   }
 
   if (!streetValidation(address.street)) {
-    errors.street = "Az utca neve legalább 2 karakter";
-  }
-
-  if (!houseNumberValidation(address.houseNumber)) {
-    errors.houseNumber = "A házszám nem lehet üres";
+    errors.street = "A közterület neve legalább 2 karakter";
   }
 
   return {

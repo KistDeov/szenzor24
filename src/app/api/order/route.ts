@@ -126,11 +126,7 @@ BEJÖVŐ JSON STRUKTÚRA (body) - 2026-02-04 frissítve:
     "billingAddress": {
       "zip": "1138",
       "city": "Budapest",
-      "street": "Váci út",
-      "houseNumber": "99",
-      "stair": null,
-      "floor": null,
-      "door": null
+      "street": "Váci út"
     },
     "foxpostAutomata": "FOXP-LIFE-001"
   },
@@ -252,7 +248,7 @@ export async function POST(request: Request) {
       }
 
       const billing = body.shipping.billingAddress;
-      if (!billing.zip || !billing.city || !billing.street || !billing.houseNumber) {
+      if (!billing.zip || !billing.city || !billing.street) {
         return NextResponse.json(
           { error: "Hiányos számlázási cím" },
           { status: 400 }
@@ -269,7 +265,7 @@ export async function POST(request: Request) {
       }
 
       const shipping = body.shipping.shippingAddress;
-      if (!shipping.zip || !shipping.city || !shipping.street || !shipping.houseNumber) {
+      if (!shipping.zip || !shipping.city || !shipping.street) {
         return NextResponse.json(
           { error: "Hiányos szállítási cím" },
           { status: 400 }

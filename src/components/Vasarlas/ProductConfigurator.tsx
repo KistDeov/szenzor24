@@ -384,7 +384,8 @@ const presetOptions: PresetOption[] = [
     id: "bor",
     label: "Bormonitor",
     description: "Hő + páratartalom szenzor, normál burkolat",
-    infodescription: "Bortároló / borospince hőmérséklet- és páratartalom-figyelése",
+    infodescription:
+      "Bortároló / borospince hőmérséklet- és páratartalom-figyelése",
     szenzorok: ["homerseklet", "paratartalom"],
     anyagId: "normal_burkolat",
     popular: true,
@@ -441,20 +442,12 @@ interface Selection {
     zip: string;
     city: string;
     street: string;
-    houseNumber: string;
-    stair: string;
-    floor: string;
-    door: string;
   };
   billingSame: boolean;
   billingAddress: {
     zip: string;
     city: string;
     street: string;
-    houseNumber: string;
-    stair: string;
-    floor: string;
-    door: string;
   };
   foxpostAutomata: FoxpostAutomataData | null;
   guestContact: {
@@ -470,6 +463,13 @@ type GuestContactErrors = {
   email?: string;
   phone?: string;
   acceptAccountTerms?: string;
+};
+
+type ProfileData = {
+  phone: string | null;
+  postcode: number | null;
+  city: string | null;
+  street: string | null;
 };
 
 const ProductConfigurator = () => {
@@ -497,20 +497,12 @@ const ProductConfigurator = () => {
       zip: "",
       city: "",
       street: "",
-      houseNumber: "",
-      stair: "",
-      floor: "",
-      door: "",
     },
     billingSame: true,
     billingAddress: {
       zip: "",
       city: "",
       street: "",
-      houseNumber: "",
-      stair: "",
-      floor: "",
-      door: "",
     },
     foxpostAutomata: null,
     guestContact: {
@@ -560,6 +552,7 @@ const ProductConfigurator = () => {
   >({});
   const [guestContactErrors, setGuestContactErrors] =
     useState<GuestContactErrors>({});
+  const [profilePhone, setProfilePhone] = useState("");
 
   const isAkkus = selection.tapellatas === "akkus";
   const isHutoPreset = selectedPresetId === "huto";
@@ -574,17 +567,19 @@ const ProductConfigurator = () => {
     ? bormonitorSzinek
     : isHutoPreset && selection.tetoSzin === "zold"
       ? dobozSzinek.filter((szin) => szin.id === "zold")
-    : isAkkus
-      ? akkusDobozSzinek
-      : dobozSzinek;
+      : isAkkus
+        ? akkusDobozSzinek
+        : dobozSzinek;
   const visibleTetoSzinek = isBormonitor
     ? bormonitorSzinek
     : isHutoPreset && selection.dobozSzin !== "zold"
       ? tetoSzinek.filter((szin) => szin.id !== "zold")
-    : isAkkus
-      ? akkusTetoSzinek
-      : tetoSzinek;
-  const orderDobozSzinek = isBormonitor ? bormonitorSzinek : catalog.dobozSzinek;
+      : isAkkus
+        ? akkusTetoSzinek
+        : tetoSzinek;
+  const orderDobozSzinek = isBormonitor
+    ? bormonitorSzinek
+    : catalog.dobozSzinek;
   const orderTetoSzinek = isBormonitor ? bormonitorSzinek : catalog.tetoSzinek;
   const shouldClampAkkusColors = isAkkus && !isBormonitor;
 
@@ -631,6 +626,46 @@ const ProductConfigurator = () => {
   }, []);
 
   useEffect(() => {
+    if (!session?.user?.id) return;
+
+    const loadProfile = async () => {
+      try {
+        const response = await fetch("/api/profile");
+        if (!response.ok) return;
+
+        const profile: ProfileData = await response.json();
+        setProfilePhone(profile.phone || "");
+
+        const savedAddress = {
+          zip: profile.postcode ? String(profile.postcode) : "",
+          city: profile.city || "",
+          street: profile.street || "",
+        };
+
+        setSelection((current) => {
+          const fillEmptyAddress = (address: Selection["shippingAddress"]) =>
+            Object.fromEntries(
+              Object.entries(address).map(([key, value]) => [
+                key,
+                value || savedAddress[key as keyof typeof savedAddress],
+              ]),
+            ) as Selection["shippingAddress"];
+
+          return {
+            ...current,
+            shippingAddress: fillEmptyAddress(current.shippingAddress),
+            billingAddress: fillEmptyAddress(current.billingAddress),
+          };
+        });
+      } catch (error) {
+        console.error("Profiladatok betöltése sikertelen:", error);
+      }
+    };
+
+    void loadProfile();
+  }, [session?.user?.id]);
+
+  useEffect(() => {
     if (!shouldClampAkkusColors) return;
 
     const allowed = new Set(["feher", "fekete"]);
@@ -672,22 +707,22 @@ const ProductConfigurator = () => {
     if (typeof window === "undefined") return;
 
     const savedConfig = localStorage.getItem("pending_config");
-    
+
     if (savedConfig) {
       try {
         const parsedConfig = JSON.parse(savedConfig);
-        
+
         setSelection(parsedConfig);
-        
+
         setCurrentStep("szallitas");
-        
+
         setHasChosenGuest(true);
 
         if (parsedConfig.anyag !== null || parsedConfig.szenzorok.length > 0) {
         }
 
         localStorage.removeItem("pending_config");
-        
+
         toast.success("Konfiguráció visszaállítva!");
       } catch (e) {
         console.error("Hiba a mentett konfiguráció betöltésekor", e);
@@ -729,15 +764,10 @@ const ProductConfigurator = () => {
           ),
         )
       : catalog.szenzorok;
-  const previewModelSrc =
-    isBormonitor
-      ? getBormonitorModelSrc(selection.dobozSzin, selection.tetoSzin)
-      : selectedPresetId === "huto"
-        ? getPresetColorModelSrc(
-            "huto",
-            selection.dobozSzin,
-            selection.tetoSzin,
-          )
+  const previewModelSrc = isBormonitor
+    ? getBormonitorModelSrc(selection.dobozSzin, selection.tetoSzin)
+    : selectedPresetId === "huto"
+      ? getPresetColorModelSrc("huto", selection.dobozSzin, selection.tetoSzin)
       : `/images/hero/${selection.dobozSzin || "feher"}/${selection.dobozSzin || "feher"}_${selection.tetoSzin || "feher"}.glb`;
 
   const isTapellatasDisabled = (tapellatasId: string) =>
@@ -775,7 +805,8 @@ const ProductConfigurator = () => {
       const remoteItem = remoteItems?.find((item) => {
         return (
           String(item.id) === String(fallbackItem.id) ||
-          (fallbackOldId != null && String(item.old_id) === String(fallbackOldId))
+          (fallbackOldId != null &&
+            String(item.old_id) === String(fallbackOldId))
         );
       });
 
@@ -868,8 +899,7 @@ const ProductConfigurator = () => {
     Boolean(
       address.zip.trim() &&
         address.city.trim() &&
-        address.street.trim() &&
-        address.houseNumber.trim(),
+        address.street.trim(),
     );
 
   const validateGuestContact = (contact: Selection["guestContact"]) => {
@@ -1186,7 +1216,7 @@ const ProductConfigurator = () => {
       : session?.user?.email || "";
     const resolvedUserPhone = isGuestCheckout
       ? selection.guestContact.phone.trim()
-      : "";
+      : profilePhone.trim();
 
     const orderPayload: OrderPayload = {
       userId: isGuestCheckout
@@ -1263,10 +1293,6 @@ const ProductConfigurator = () => {
                 zip: selection.shippingAddress.zip.trim(),
                 city: selection.shippingAddress.city.trim(),
                 street: selection.shippingAddress.street.trim(),
-                houseNumber: selection.shippingAddress.houseNumber.trim(),
-                stair: selection.shippingAddress.stair.trim() || null,
-                floor: selection.shippingAddress.floor.trim() || null,
-                door: selection.shippingAddress.door.trim() || null,
               }
             : null,
         billingSame:
@@ -1277,21 +1303,13 @@ const ProductConfigurator = () => {
                 zip: selection.shippingAddress.zip.trim(),
                 city: selection.shippingAddress.city.trim(),
                 street: selection.shippingAddress.street.trim(),
-                houseNumber: selection.shippingAddress.houseNumber.trim(),
-                stair: selection.shippingAddress.stair.trim() || null,
-                floor: selection.shippingAddress.floor.trim() || null,
-                door: selection.shippingAddress.door.trim() || null,
               }
             : selection.shippingMode === "hazhoz"
               ? {
-                zip: selection.billingAddress.zip.trim(),
-                city: selection.billingAddress.city.trim(),
-                street: selection.billingAddress.street.trim(),
-                houseNumber: selection.billingAddress.houseNumber.trim(),
-                stair: selection.billingAddress.stair.trim() || null,
-                floor: selection.billingAddress.floor.trim() || null,
-                door: selection.billingAddress.door.trim() || null,
-              }
+                  zip: selection.billingAddress.zip.trim(),
+                  city: selection.billingAddress.city.trim(),
+                  street: selection.billingAddress.street.trim(),
+                }
               : null,
         foxpostAutomata:
           selection.shippingMode === "foxpost" && selection.foxpostAutomata
@@ -1456,7 +1474,7 @@ const ProductConfigurator = () => {
 
                 if (isSelected) {
                   styleClass +=
-                    "border-primary bg-primary/10 dark:border-primary dark:bg-primary/5";
+                  "border-orange-500 bg-orange-500/10 dark:border-orange-400 dark:bg-orange-500/10";
                 } else {
                   styleClass +=
                     "border-stroke dark:border-stroke-dark dark:bg-dark bg-white";
@@ -1528,7 +1546,7 @@ const ProductConfigurator = () => {
                     }
                     className={`rounded-xl border-2 p-4 transition-all ${
                       isSelected
-                        ? "border-primary bg-primary/10"
+                        ? "border-orange-500 bg-orange-500/10"
                         : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
                     } ${isPresetLocked ? "w-full max-w-[240px] cursor-not-allowed opacity-80" : "cursor-pointer hover:shadow-lg"}`}
                   >
@@ -1544,7 +1562,7 @@ const ProductConfigurator = () => {
                       <div
                         className={`flex h-6 w-6 items-center justify-center rounded-md border-2 ${
                           isSelected
-                            ? "border-primary bg-primary"
+                            ? "border-orange-500 bg-orange-500"
                             : "border-gray-300 dark:border-gray-600"
                         }`}
                       >
@@ -1569,7 +1587,7 @@ const ProductConfigurator = () => {
                     <p className="text-body mb-2 text-xs break-words">
                       {szenzor.description}
                     </p>
-                    <p className="text-primary text-lg font-bold">
+                    <p className="text-orange-500 text-lg font-bold">
                       {szenzor.price.toLocaleString("hu-HU")} Ft
                     </p>
                   </div>
@@ -1616,7 +1634,7 @@ const ProductConfigurator = () => {
                   }
                   className={`rounded-xl border-2 p-6 transition-all ${
                     matchSelection(anyag, selection.anyag)
-                      ? "border-primary bg-primary/10"
+                      ? "border-orange-500 bg-orange-500/10"
                       : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
                   } ${isPresetLocked ? "w-full max-w-[320px] cursor-not-allowed opacity-80" : "cursor-pointer hover:shadow-lg"}`}
                 >
@@ -1625,7 +1643,7 @@ const ProductConfigurator = () => {
                     {anyag.name}
                   </h4>
                   <p className="text-body mb-3 text-sm">{anyag.description}</p>
-                  <p className="text-primary text-xl font-bold">
+                  <p className="text-orange-500 text-xl font-bold">
                     {anyag.price === 0
                       ? "Alap ár"
                       : `+${anyag.price.toLocaleString("hu-HU")} Ft`}
@@ -1658,7 +1676,7 @@ const ProductConfigurator = () => {
                       : "cursor-pointer hover:shadow-lg"
                   } ${
                     isSelected
-                      ? "border-primary bg-primary/10"
+                      ? "border-orange-500 bg-orange-500/10"
                       : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
                   }`}
                 >
@@ -1666,10 +1684,8 @@ const ProductConfigurator = () => {
                   <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
                     {doboz.name}
                   </h4>
-                  <p className="text-body mb-3 text-sm">
-                    {doboz.description}
-                  </p>
-                  <p className="text-primary text-xl font-bold">
+                  <p className="text-body mb-3 text-sm">{doboz.description}</p>
+                  <p className="text-orange-500 text-xl font-bold">
                     {doboz.price.toLocaleString("hu-HU")} Ft
                   </p>
                 </div>
@@ -1718,7 +1734,7 @@ const ProductConfigurator = () => {
                     }
                     className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 transition-all ${
                       selection.dobozSzin === szin.id
-                        ? "border-primary bg-primary/10"
+                        ? "border-orange-500 bg-orange-500/10"
                         : "border-stroke dark:border-stroke-dark"
                     }`}
                   >
@@ -1757,7 +1773,7 @@ const ProductConfigurator = () => {
                     }
                     className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 transition-all ${
                       selection.tetoSzin === szin.id
-                        ? "border-primary bg-primary/10"
+                        ? "border-orange-500 bg-orange-500/10"
                         : "border-stroke dark:border-stroke-dark"
                     }`}
                   >
@@ -1802,7 +1818,7 @@ const ProductConfigurator = () => {
                         : "cursor-pointer hover:shadow-lg"
                     } ${
                       isSelected
-                        ? "border-primary bg-primary/10"
+                        ? "border-orange-500 bg-orange-500/10"
                         : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
                     }`}
                   >
@@ -1810,10 +1826,8 @@ const ProductConfigurator = () => {
                     <h4 className="mb-2 text-lg font-semibold text-black dark:text-white">
                       {tap.name}
                     </h4>
-                    <p className="text-body mb-3 text-sm">
-                      {tap.description}
-                    </p>
-                    <p className="text-primary text-xl font-bold">
+                    <p className="text-body mb-3 text-sm">{tap.description}</p>
+                    <p className="text-orange-500 text-xl font-bold">
                       {tap.price.toLocaleString("hu-HU")} Ft
                     </p>
                   </div>
@@ -1836,7 +1850,7 @@ const ProductConfigurator = () => {
                   }
                   className={`rounded-xl border-2 p-6 text-left transition-all hover:shadow-lg ${
                     matchSelection(plan, selection.elofizetes)
-                      ? "border-primary bg-primary/10"
+                      ? "border-orange-500 bg-orange-500/10"
                       : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
                   }`}
                 >
@@ -1844,7 +1858,7 @@ const ProductConfigurator = () => {
                     {plan.name}
                   </h4>
                   <p className="text-body mb-3 text-sm">{plan.description}</p>
-                  <p className="text-primary text-xl font-bold">
+                  <p className="text-orange-500 text-xl font-bold">
                     {plan.price === 0
                       ? "0 Ft"
                       : `${plan.price.toLocaleString("hu-HU")} Ft`}
@@ -2049,7 +2063,7 @@ const ProductConfigurator = () => {
                   }}
                   className={`rounded-xl border-2 p-5 text-left transition-all hover:shadow-lg ${
                     selection.shippingMode === mod.id
-                      ? "border-primary bg-primary/10"
+                      ? "border-orange-500 bg-orange-500/10"
                       : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
                   }`}
                 >
@@ -2099,58 +2113,12 @@ const ProductConfigurator = () => {
                     shippingAddressErrors.city,
                   )}
                   {renderAddressInput(
-                    "Utca",
+                    "Közterület neve",
                     selection.shippingAddress.street,
                     "street",
                     "shippingAddress",
                     shippingAddressErrors.street,
                   )}
-                  {renderAddressInput(
-                    "Házszám",
-                    selection.shippingAddress.houseNumber,
-                    "houseNumber",
-                    "shippingAddress",
-                    shippingAddressErrors.houseNumber,
-                  )}
-                  <input
-                    type="text"
-                    placeholder="Lépcsőház (opcionális)"
-                    value={selection.shippingAddress.stair}
-                    onChange={(ev) =>
-                      updateAddressField(
-                        "shippingAddress",
-                        "stair",
-                        ev.target.value,
-                      )
-                    }
-                    className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Emelet (opcionális)"
-                    value={selection.shippingAddress.floor}
-                    onChange={(ev) =>
-                      updateAddressField(
-                        "shippingAddress",
-                        "floor",
-                        ev.target.value,
-                      )
-                    }
-                    className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Ajtó (opcionális)"
-                    value={selection.shippingAddress.door}
-                    onChange={(ev) =>
-                      updateAddressField(
-                        "shippingAddress",
-                        "door",
-                        ev.target.value,
-                      )
-                    }
-                    className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                  />
                 </div>
 
                 <label className="text-body flex items-center gap-3 text-sm">
@@ -2199,64 +2167,12 @@ const ProductConfigurator = () => {
                       />
                       <input
                         type="text"
-                        placeholder="Utca"
+                        placeholder="Közterület neve"
                         value={selection.billingAddress.street}
                         onChange={(ev) =>
                           updateAddressField(
                             "billingAddress",
                             "street",
-                            ev.target.value,
-                          )
-                        }
-                        className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Házszám"
-                        value={selection.billingAddress.houseNumber}
-                        onChange={(ev) =>
-                          updateAddressField(
-                            "billingAddress",
-                            "houseNumber",
-                            ev.target.value,
-                          )
-                        }
-                        className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Lépcsőház (opcionális)"
-                        value={selection.billingAddress.stair}
-                        onChange={(ev) =>
-                          updateAddressField(
-                            "billingAddress",
-                            "stair",
-                            ev.target.value,
-                          )
-                        }
-                        className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Emelet (opcionális)"
-                        value={selection.billingAddress.floor}
-                        onChange={(ev) =>
-                          updateAddressField(
-                            "billingAddress",
-                            "floor",
-                            ev.target.value,
-                          )
-                        }
-                        className="border-stroke focus:border-primary dark:border-stroke-dark dark:bg-dark w-full rounded-lg border bg-white px-4 py-3 text-sm text-black outline-none dark:text-white"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Ajtó (opcionális)"
-                        value={selection.billingAddress.door}
-                        onChange={(ev) =>
-                          updateAddressField(
-                            "billingAddress",
-                            "door",
                             ev.target.value,
                           )
                         }
@@ -2286,7 +2202,7 @@ const ProductConfigurator = () => {
                   }
                   className={`rounded-xl border-2 p-6 text-left transition-all hover:shadow-lg ${
                     selection.paymentMode === mod.id
-                      ? "border-primary bg-primary/10"
+                      ? "border-orange-500 bg-orange-500/10"
                       : "border-stroke dark:border-stroke-dark dark:bg-dark bg-white"
                   }`}
                 >
@@ -2369,7 +2285,7 @@ const ProductConfigurator = () => {
                   ))}
                   <div className="mt-2 flex items-center justify-between border-t border-dashed border-gray-300 pt-2 dark:border-gray-600">
                     <p className="text-body text-sm">Szenzorok összesen:</p>
-                    <p className="text-primary font-semibold">
+                    <p className="text-orange-500 font-semibold">
                       {szenzorokTotal.toLocaleString("hu-HU")} Ft
                     </p>
                   </div>
@@ -2462,8 +2378,8 @@ const ProductConfigurator = () => {
                                   }}
                                   className={`rounded-lg border-2 px-3 py-1.5 text-xs font-medium transition-all ${
                                     isSelected
-                                      ? "border-primary bg-primary/10 text-black dark:text-white"
-                                      : "border-stroke dark:border-stroke-dark text-body hover:border-primary/50"
+                                    ? "border-orange-500 bg-orange-500/10 text-black dark:text-white"
+                                      : "border-stroke dark:border-stroke-dark text-body hover:border-orange-500/50"
                                   }`}
                                 >
                                   {plan.name}{" "}
@@ -2489,7 +2405,7 @@ const ProductConfigurator = () => {
                     <p className="text-body text-sm">
                       Előfizetési díj összesen:
                     </p>
-                    <p className="text-primary font-semibold">
+                    <p className="text-orange-500 font-semibold">
                       {calculateSubscriptionFee().toLocaleString("hu-HU")} Ft
                     </p>
                   </div>
@@ -2584,17 +2500,7 @@ const ProductConfigurator = () => {
                     <p className="text-body text-sm">
                       Szállítási cím: {selection.shippingAddress.zip}{" "}
                       {selection.shippingAddress.city},{" "}
-                      {selection.shippingAddress.street}{" "}
-                      {selection.shippingAddress.houseNumber}
-                      {selection.shippingAddress.stair
-                        ? `, ${selection.shippingAddress.stair}`
-                        : ""}
-                      {selection.shippingAddress.floor
-                        ? `, ${selection.shippingAddress.floor}`
-                        : ""}
-                      {selection.shippingAddress.door
-                        ? `, ${selection.shippingAddress.door}`
-                        : ""}
+                      {selection.shippingAddress.street}
                     </p>
                   )}
 
@@ -2603,17 +2509,7 @@ const ProductConfigurator = () => {
                       <p className="text-body text-sm">
                         Számlázási cím: {selection.billingAddress.zip}{" "}
                         {selection.billingAddress.city},{" "}
-                        {selection.billingAddress.street}{" "}
-                        {selection.billingAddress.houseNumber}
-                        {selection.billingAddress.stair
-                          ? `, ${selection.billingAddress.stair}`
-                          : ""}
-                        {selection.billingAddress.floor
-                          ? `, ${selection.billingAddress.floor}`
-                          : ""}
-                        {selection.billingAddress.door
-                          ? `, ${selection.billingAddress.door}`
-                          : ""}
+                        {selection.billingAddress.street}
                       </p>
                     )}
 
@@ -2681,7 +2577,7 @@ const ProductConfigurator = () => {
                     <p className="text-xl font-bold text-black dark:text-white">
                       Bruttó összeg:
                     </p>
-                    <p className="text-primary text-2xl font-bold">
+                <p className="text-orange-500 text-2xl font-bold">
                       {total.toLocaleString("hu-HU")} Ft
                     </p>
                   </div>
@@ -2690,7 +2586,7 @@ const ProductConfigurator = () => {
 
               <button
                 onClick={handleOrder}
-                className="bg-primary hover:bg-primary/90 mt-6 w-full rounded-lg py-4 text-lg font-semibold text-white transition-all"
+                className="bg-orange-500 hover:bg-orange-600 mt-6 w-full rounded-lg py-4 text-lg font-semibold text-white transition-all"
               >
                 Megrendelés
               </button>
@@ -2779,7 +2675,7 @@ const ProductConfigurator = () => {
                 onClick={() => {
                   window.location.href = `/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname)}`;
                 }}
-                className="bg-primary hover:bg-primary/90 w-full rounded-lg px-8 py-4 font-semibold text-white transition-all sm:w-auto"
+                className="bg-orange-500 hover:bg-orange-600 w-full rounded-lg px-8 py-4 font-semibold text-white transition-all sm:w-auto"
               >
                 Bejelentkezés
               </button>
@@ -2837,7 +2733,7 @@ const ProductConfigurator = () => {
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
                         isActive
-                          ? "bg-primary text-white"
+                          ? "bg-orange-500 text-white"
                           : isCompleted
                             ? "bg-green-500 text-white"
                             : "bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
@@ -2848,7 +2744,7 @@ const ProductConfigurator = () => {
                     <span
                       className={`mt-2 hidden text-xs font-medium sm:block ${
                         isActive
-                          ? "text-primary"
+                          ? "text-orange-500"
                           : isCompleted
                             ? "text-green-500"
                             : "text-gray-500 dark:text-gray-400"
@@ -2899,7 +2795,7 @@ const ProductConfigurator = () => {
                 disabled={currentStep !== "szallitas" && !canProceed()}
                 className={`rounded-lg px-6 py-3 font-medium transition-all ${
                   currentStep === "szallitas" || canProceed()
-                    ? "bg-primary hover:bg-primary/90 text-white"
+                    ? "bg-orange-500 hover:bg-orange-600 text-white"
                     : "cursor-not-allowed bg-gray-200 text-gray-400 dark:bg-gray-700"
                 }`}
               >
@@ -2981,7 +2877,7 @@ const ProductConfigurator = () => {
                 <p className="font-medium text-black dark:text-white">
                   Bruttó végösszeg
                 </p>
-                <p className="text-primary text-lg font-semibold">
+                <p className="text-orange-500 text-lg font-semibold">
                   {calculateGrandTotal().toLocaleString("hu-HU")} Ft
                 </p>
                 <p className="text-[13px] text-gray-500 italic dark:text-gray-400">

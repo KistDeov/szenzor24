@@ -9,7 +9,7 @@ import GoogleProvider from "next-auth/providers/google";
 
 import bcrypt from "bcrypt";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 export const authOptions: NextAuthOptions = {
   pages: {
@@ -33,17 +33,31 @@ export const authOptions: NextAuthOptions = {
     debug(code, metadata) {
       // Avoid logging sensitive data
       if (process.env.NODE_ENV !== "production") {
-        console.log("[NextAuth][debug]", code, metadata && Object.keys(metadata));
+        console.log(
+          "[NextAuth][debug]",
+          code,
+          metadata && Object.keys(metadata),
+        );
       }
     },
   },
   callbacks: {
-    async jwt({ token, user }) {
-
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id; // User ID hozzáadása a tokenhez
         token.licence = (user as any).licence;
         token.trialEnded = (user as any).trialEnded;
+      }
+      if (trigger === "update" && token.id) {
+        const updatedUser = await prisma.user.findUnique({
+          where: { id: Number(token.id) },
+          select: { name: true, email: true },
+        });
+
+        if (updatedUser) {
+          token.name = updatedUser.name;
+          token.email = updatedUser.email;
+        }
       }
       return token;
     },
@@ -169,14 +183,14 @@ export const authOptions: NextAuthOptions = {
       allowDangerousEmailAccountLinking: true,
       profile(profile) {
         const hungarianName = `${profile.family_name} ${profile.given_name}`;
-        
+
         return {
           id: profile.sub,
-          name: hungarianName,       
+          name: hungarianName,
           email: profile.email,
           image: profile.picture,
-          username: hungarianName,    
-          role: "user",             
+          username: hungarianName,
+          role: "user",
         };
       },
     }),
@@ -188,4 +202,3 @@ export const authOptions: NextAuthOptions = {
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
-
