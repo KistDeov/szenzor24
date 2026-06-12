@@ -311,6 +311,28 @@ const elofizetesek = [
   },
 ] as const;
 
+const normalizeSubscriptionId = (id: unknown) => {
+  const value = String(id ?? "").trim().toLowerCase();
+  if (["free", "ingyenes"].includes(value)) return "ingyenes";
+  if (["monthly", "havi"].includes(value)) return "havi";
+  if (["yearly", "eves", "éves"].includes(value)) return "eves";
+  return value || "ingyenes";
+};
+
+const normalizeSubscriptionPlan = (plan: any) => {
+  const normalizedId = normalizeSubscriptionId(plan?.id);
+  const fallback = elofizetesek.find((item) => item.id === normalizedId);
+  return {
+    ...plan,
+    id: normalizedId,
+    name: plan?.name ?? fallback?.name ?? "Ingyenes",
+    price:
+      typeof plan?.price === "number"
+        ? plan.price
+        : fallback?.price ?? 0,
+  };
+};
+
 // Burok anyag típusok (PLACEHOLDER - árak és típusok később pontosítandók)
 const anyagok = [
   {
@@ -608,7 +630,6 @@ const ProductConfigurator = () => {
             (data.colors ?? []).filter((c: any) => c.kind === "top"),
           ),
           tapellatasok: mergeCatalogList(prev.tapellatasok, data.powerOptions),
-          elofizetesek: mergeCatalogList(prev.elofizetesek, data.subscriptions),
           anyagok: mergeCatalogList(prev.anyagok, data.materials),
           szallitasiArak: Object.fromEntries(
             (data.shippingPrices ?? []).map((p: any) => [
@@ -616,6 +637,10 @@ const ProductConfigurator = () => {
               p.price,
             ]),
           ) as typeof SZALLITASI_ARAK,
+          elofizetesek: mergeCatalogList(
+            prev.elofizetesek,
+            (data.subscriptions ?? []).map(normalizeSubscriptionPlan),
+          ),
         }));
       } catch (err) {
         console.error("Catalog betöltése sikertelen:", err);
@@ -1252,7 +1277,7 @@ const ProductConfigurator = () => {
       },
       elofizetes: selectedElofizetes
         ? {
-            id: selectedElofizetes.id,
+            id: normalizeSubscriptionId(selectedElofizetes.id),
             name: selectedElofizetes.name,
             price: selectedElofizetes.price,
             quantity: selection.quantity,
@@ -1267,7 +1292,7 @@ const ProductConfigurator = () => {
       elofizetesekPerUnit: selection.elofizetesekPerUnit.map((id) => {
         const plan = findBySelection(catalog.elofizetesek, id);
         return {
-          id: String(plan?.id ?? "ingyenes"),
+          id: normalizeSubscriptionId(plan?.id ?? "ingyenes"),
           name: plan?.name ?? "Ingyenes",
           price: plan?.price ?? 0,
           quantity: 1,
@@ -1353,7 +1378,9 @@ const ProductConfigurator = () => {
         : {}),
     };
     const orderApiUrl =
-      process.env.NEXT_PUBLIC_ORDER_API_URL_LOCAL || "/api/order";
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXT_PUBLIC_ORDER_API_URL_LOCAL || "/api/order"
+        : "/api/order";
 
     try {
       const { data } = await axios.post(orderApiUrl, orderPayload);
