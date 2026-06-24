@@ -50,18 +50,6 @@ const getSignOutCallbackUrl = () => {
   return "/";
 };
 
-const getDashboardUrl = () => {
-  if (typeof window === "undefined") return "https://rendszer.szenzor24.hu/";
-
-  const localHosts = new Set(["localhost", "127.0.0.1", "192.168.88.209"]);
-
-  if (localHosts.has(window.location.hostname)) {
-    return "http://192.168.88.209:3000/";
-  }
-
-  return "https://rendszer.szenzor24.hu/";
-};
-
 const Header = () => {
   useEffect(() => {
     if (window.location.pathname === "/") {
@@ -121,7 +109,7 @@ const Header = () => {
       {session && (
         <div className="fixed top-4 left-4 z-[60]">
           <a
-            href={getDashboardUrl()}
+            href="/api/sso/start"
             className="bg-primary hover:bg-primary/90 block rounded-md px-7 py-4 text-lg font-semibold text-white shadow-md"
           >
             Eszközeim
