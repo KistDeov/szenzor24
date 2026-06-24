@@ -49,16 +49,32 @@ export async function POST(request: NextRequest) {
     const emailResult = await sendEmail({
       to: normalizedEmail,
       subject: "Jelszó visszaállítás - Szenzor24",
-      html: ` 
-      <div>
-        <h1>Jelszó visszaállítás</h1>
-        <p>A jelszó visszaállításához kattints az alábbi linkre:</p>
-        <a href="${resetURL}" target="_blank">Jelszó visszaállítása</a>
-      </div>
+      text: `Jelszó visszaállítás: ${resetURL}`,
+      html: `
+        <div>
+          <h1>Jelszó visszaállítás</h1>
+          <p>A jelszó visszaállításához kattints az alábbi linkre:</p>
+          <p><a href="${resetURL}" target="_blank">Jelszó visszaállítása</a></p>
+          <p>Ha a gomb nem működik, másold be ezt a linket a böngészőbe:</p>
+          <p>${resetURL}</p>
+        </div>
       `,
     });
 
-    if (!emailResult.accepted?.length || emailResult.rejected?.length) {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[forget-password] SMTP reset email result", {
+        accepted: emailResult.accepted,
+        rejected: emailResult.rejected,
+        pending: emailResult.pending,
+        messageId: emailResult.messageId,
+        response: emailResult.response,
+      });
+    }
+
+    if (
+      !emailResult.accepted?.includes(normalizedEmail) ||
+      emailResult.rejected?.length
+    ) {
       console.error("[forget-password] SMTP did not accept reset email", {
         accepted: emailResult.accepted,
         rejected: emailResult.rejected,
