@@ -10,8 +10,8 @@ export default function Page() {
   const ref = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-      document.title = "Elfelejtett jelszó - Szenzor24";
-    }, []);
+    document.title = "Elfelejtett jelszó - Szenzor24";
+  }, []);
 
   async function onSubmit() {
     if (!integrations?.isAuthEnabled) {
@@ -26,15 +26,21 @@ export default function Page() {
     const data = { email: ref.current.value };
 
     try {
-      const res = await axios.post("/api/forget-password/reset", data);
+      const res = await axios.post<{ message: string }>(
+        "/api/forget-password/reset",
+        data,
+      );
 
-      toast.success(res.data);
+      toast.success(res.data.message);
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 404) {
-          toast.error("Ezzel az email címmel nem található felhasználó.");
+          toast.error("Ezzel az email címmel nem létezik fiók.");
         } else {
-          toast.error("Hiba történt.");
+          toast.error(
+            (error.response?.data as { message?: string } | undefined)
+              ?.message || "Hiba történt.",
+          );
         }
       }
     } finally {
@@ -52,7 +58,8 @@ export default function Page() {
             </h3>
 
             <p className="text-body mb-11 text-base">
-              Adja meg a fiókjához tartozó email címet, és küldünk egy linket a jelszó visszaállításához.
+              Adja meg a fiókjához tartozó email címet, és küldünk egy linket a
+              jelszó visszaállításához.
             </p>
           </div>
 

@@ -11,6 +11,8 @@ import bcrypt from "bcrypt";
 
 export const runtime = "nodejs";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
@@ -22,7 +24,8 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  debug: process.env.NODE_ENV !== "production",
+  useSecureCookies: isProduction,
+  debug: !isProduction,
   logger: {
     error(code, metadata) {
       console.error("[NextAuth][error]", code, metadata);
@@ -32,7 +35,7 @@ export const authOptions: NextAuthOptions = {
     },
     debug(code, metadata) {
       // Avoid logging sensitive data
-      if (process.env.NODE_ENV !== "production") {
+      if (!isProduction) {
         console.log(
           "[NextAuth][debug]",
           code,
@@ -156,7 +159,14 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Hibás email-cím vagy jelszó.");
         }
 
-        return user;
+        return {
+          id: String(user.id),
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          licence: (user as any).licence ?? undefined,
+          trialEnded: (user as any).trialEnded ?? undefined,
+        };
       },
     }),
 
