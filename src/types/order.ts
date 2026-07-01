@@ -22,10 +22,6 @@ export interface ShippingAddress {
   zip: string;
   city: string;
   street: string;
-  houseNumber: string;
-  stair?: string | null;
-  floor?: string | null;
-  door?: string | null;
 }
 
 /**
@@ -143,10 +139,7 @@ export interface OrderPayload {
       "zip": "1138",
       "city": "Budapest",
       "street": "Váci út",
-      "houseNumber": "99",
-      "stair": null,
-      "floor": null,
-      "door": null
+      "street": "Kertváros utca"
     },
     "foxpostAutomata": "BP Nyugati 115 csomagautomata",
     "foxpostAutomataDetails": {
