@@ -47,6 +47,24 @@ export default function RootLayout({
         </ThemeProvider>
         <Analytics />
 
+        {/* Google tag (gtag.js) - Google Ads */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-1007388422"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="google-ads-gtag"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-1007388422');
+            `,
+          }}
+        />
+
         {/* Statcounter: inline config + external script + noscript fallback */}
         <Script
           id="statcounter-inline"
