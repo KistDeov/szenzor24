@@ -273,6 +273,24 @@ const SZALLITASI_ARAK = {
 
 const VAT_PERCENT = 27;
 
+// ============================================================================
+// IDEIGLENES EGYSZERŰSÍTETT MEGRENDELÉS (2026-07-31)
+// A megrendelés folyamatból egyelőre KI VAN KOMMENTELVE a csomag (preset),
+// a burkolat/anyag, a doboz, a szenzor és a tápellátás választás.
+// A vásárló csak SZÍNT és ELŐFIZETÉST választhat, az eszköz fix áras.
+//
+// Visszaállítás: keresd az "EGYSZERŰSÍTETT MEGRENDELÉS" megjegyzéseket a
+// fájlban (steps tömb, calculateSubtotal, összesítés, oldalsáv, handleOrder)
+// és állítsd vissza a kikommentelt blokkokat.
+// ============================================================================
+const FIX_ESZKOZ_NETTO_AR = 32000; // Ft / db, ÁFA nélkül
+const FIX_ESZKOZ_NEV = "Szenzor24 eszköz";
+const FIX_ESZKOZ_ID = "szenzor24_eszkoz";
+
+// Rejtett lépések alapértelmezett értékei (a "huto" preset adja a szenzorokat,
+// a burkolatot és a dobozt, itt csak a tápellátást kell fixálni)
+const ALAP_TAPELLATAS = "vezetekes";
+
 // Fizetési módok
 const fizetesiModok = [
   {
@@ -497,7 +515,9 @@ type ProfileData = {
 const ProductConfigurator = () => {
   const { data: session } = useSession();
   const isGuestCheckout = !session?.user;
-  const [currentStep, setCurrentStep] = useState<StepId>("mod");
+  // EGYSZERŰSÍTETT MEGRENDELÉS: a "mod" (csomag) lépés rejtve, a szín az első
+  // const [currentStep, setCurrentStep] = useState<StepId>("mod");
+  const [currentStep, setCurrentStep] = useState<StepId>("szin");
   // default to preset mode with the first popular option selected
   const [configMode, setConfigMode] = useState<ConfigMode | null>("preset");
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(
@@ -509,7 +529,9 @@ const ProductConfigurator = () => {
     doboz: null,
     dobozSzin: "",
     tetoSzin: "",
-    tapellatas: null,
+    // EGYSZERŰSÍTETT MEGRENDELÉS: a tápellátás lépés rejtve, fix alapérték
+    // tapellatas: null,
+    tapellatas: ALAP_TAPELLATAS,
     elofizetes: null,
     elofizetesekPerUnit: [],
     quantity: 1,
@@ -756,14 +778,15 @@ const ProductConfigurator = () => {
     }
   }, []);
 
+  // EGYSZERŰSÍTETT MEGRENDELÉS: csak szín + előfizetés választható
   const steps: { id: StepId; title: string; icon: string }[] = [
-    { id: "mod", title: "Csomag", icon: "1" },
-    { id: "tapellatas", title: "Tápellátás", icon: "2" },
-    { id: "doboz", title: "Doboz", icon: "3" },
-    { id: "szin", title: "Szín", icon: "4" },
-    { id: "elofizetes", title: "Előfizetés", icon: "5" },
-    { id: "szallitas", title: "Szállítás", icon: "6" },
-    { id: "fizetes", title: "Fizetés", icon: "7" },
+    // { id: "mod", title: "Csomag", icon: "1" },
+    // { id: "tapellatas", title: "Tápellátás", icon: "2" },
+    // { id: "doboz", title: "Doboz", icon: "3" },
+    { id: "szin", title: "Szín", icon: "1" },
+    { id: "elofizetes", title: "Előfizetés", icon: "2" },
+    { id: "szallitas", title: "Szállítás", icon: "3" },
+    { id: "fizetes", title: "Fizetés", icon: "4" },
     { id: "osszesites", title: "Összesítés", icon: "✓" },
   ];
 
@@ -866,7 +889,12 @@ const ProductConfigurator = () => {
       } as T;
     });
 
+  // EGYSZERŰSÍTETT MEGRENDELÉS: az eszköz fix áras (32 000 Ft + ÁFA / db),
+  // az összetevőnkénti árazás egyelőre ki van kommentelve.
   const calculateSubtotal = () => {
+    return FIX_ESZKOZ_NETTO_AR * selection.quantity;
+
+    /*
     let total = 0;
     // Több szenzor összege
     for (const szenzorId of selection.szenzorok) {
@@ -889,6 +917,7 @@ const ProductConfigurator = () => {
     }
     // Szorzunk a darabszámmal
     return total * selection.quantity;
+    */
   };
 
   const calculateSubscriptionFee = () => {
@@ -1185,6 +1214,9 @@ const ProductConfigurator = () => {
       selection.tetoSzin,
     );
 
+    // EGYSZERŰSÍTETT MEGRENDELÉS: a szenzor/burkolat/doboz/tápellátás lépések
+    // rejtve vannak, ezért nincs rájuk kötelező ellenőrzés.
+    /*
     if (
       selectedSzenzorok.length === 0 ||
       !selectedAnyag ||
@@ -1194,6 +1226,7 @@ const ProductConfigurator = () => {
       toast.error("Hiányzó termék választás!");
       return;
     }
+    */
 
     if (
       selection.elofizetesekPerUnit.length < selection.quantity ||
@@ -1251,28 +1284,47 @@ const ProductConfigurator = () => {
       userName: resolvedUserName,
       userPhone: resolvedUserPhone,
 
-      szenzorok: selectedSzenzorok.map((sz) => ({
-        id: sz!.id,
-        name: sz!.name,
-        price: sz!.price,
+      // EGYSZERŰSÍTETT MEGRENDELÉS: az eszköz fix áras, az összetevők 0 Ft-tal
+      // mennek (a backend az összetevők árából számol újra összeget).
+      eszkoz: {
+        id: FIX_ESZKOZ_ID,
+        name: FIX_ESZKOZ_NEV,
+        price: FIX_ESZKOZ_NETTO_AR,
         quantity: selection.quantity,
-      })),
+      },
+
+      szenzorok:
+        selectedSzenzorok.length > 0
+          ? selectedSzenzorok.map((sz) => ({
+              id: sz!.id,
+              name: sz!.name,
+              price: 0, // fix áras eszköz - eredetileg: sz!.price
+              quantity: selection.quantity,
+            }))
+          : [
+              {
+                id: FIX_ESZKOZ_ID,
+                name: FIX_ESZKOZ_NEV,
+                price: 0,
+                quantity: selection.quantity,
+              },
+            ],
       anyag: {
-        id: selectedAnyag.id,
-        name: selectedAnyag.name,
-        price: selectedAnyag.price,
+        id: selectedAnyag?.id ?? "normal_burkolat",
+        name: selectedAnyag?.name ?? "Normál burkolat",
+        price: 0, // fix áras eszköz - eredetileg: selectedAnyag.price
         quantity: selection.quantity,
       },
       doboz: {
-        id: selectedDoboz.id,
-        name: selectedDoboz.name,
-        price: selectedDoboz.price,
+        id: selectedDoboz?.id ?? "muanyag",
+        name: selectedDoboz?.name ?? "Műanyag doboz",
+        price: 0, // fix áras eszköz - eredetileg: selectedDoboz.price
         quantity: selection.quantity,
       },
       tapellatas: {
-        id: selectedTap.id,
-        name: selectedTap.name,
-        price: selectedTap.price,
+        id: selectedTap?.id ?? ALAP_TAPELLATAS,
+        name: selectedTap?.name ?? "Vezetékes",
+        price: 0, // fix áras eszköz - eredetileg: selectedTap.price
         quantity: selection.quantity,
       },
       elofizetes: selectedElofizetes
@@ -2280,7 +2332,29 @@ const ProductConfigurator = () => {
               </h4>
 
               <div className="space-y-4">
-                {/* Szenzorok - több is lehet */}
+                {/* EGYSZERŰSÍTETT MEGRENDELÉS: fix áras eszköz */}
+                <div className="border-stroke dark:border-stroke-dark flex items-center justify-between border-b pb-3">
+                  <div>
+                    <p className="text-body text-sm">Eszköz</p>
+                    <p className="font-medium text-black dark:text-white">
+                      📡 {FIX_ESZKOZ_NEV}
+                    </p>
+                    <p className="text-body text-xs">
+                      {selection.quantity} db ×{" "}
+                      {FIX_ESZKOZ_NETTO_AR.toLocaleString("hu-HU")} Ft + ÁFA
+                    </p>
+                  </div>
+                  <p className="font-semibold text-black dark:text-white">
+                    {(
+                      FIX_ESZKOZ_NETTO_AR * selection.quantity
+                    ).toLocaleString("hu-HU")}{" "}
+                    Ft
+                  </p>
+                </div>
+
+                {/* EGYSZERŰSÍTETT MEGRENDELÉS - ideiglenesen kikommentelve:
+                    szenzorok, burok anyaga és doboz bontása
+
                 <div className="border-stroke dark:border-stroke-dark border-b pb-3">
                   <p className="text-body mb-2 text-sm font-medium">
                     Szenzorok ({selectedSzenzorokList.length} db)
@@ -2293,7 +2367,6 @@ const ProductConfigurator = () => {
                       <div className="flex items-center gap-2">
                         {sz?.imageUrl && (
                           <>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={sz.imageUrl}
                               alt={sz.name}
@@ -2318,7 +2391,6 @@ const ProductConfigurator = () => {
                   </div>
                 </div>
 
-                {/* Anyag */}
                 <div className="border-stroke dark:border-stroke-dark flex items-center justify-between border-b pb-3">
                   <div>
                     <p className="text-body text-sm">Burok anyaga</p>
@@ -2344,6 +2416,7 @@ const ProductConfigurator = () => {
                     {selectedDoboz?.price.toLocaleString("hu-HU")} Ft
                   </p>
                 </div>
+                */}
 
                 <div className="border-stroke dark:border-stroke-dark flex items-center justify-between border-b pb-3">
                   <div>
@@ -2356,6 +2429,7 @@ const ProductConfigurator = () => {
                   </div>
                 </div>
 
+                {/* EGYSZERŰSÍTETT MEGRENDELÉS - tápellátás ideiglenesen kikommentelve
                 <div className="border-stroke dark:border-stroke-dark flex items-center justify-between border-b pb-3">
                   <div>
                     <p className="text-body text-sm">Tápellátás</p>
@@ -2367,6 +2441,7 @@ const ProductConfigurator = () => {
                     {selectedTap?.price.toLocaleString("hu-HU")} Ft
                   </p>
                 </div>
+                */}
 
                 <div className="border-stroke dark:border-stroke-dark border-b pb-3">
                   <p className="text-body mb-3 text-sm font-medium">
@@ -2800,9 +2875,9 @@ const ProductConfigurator = () => {
           <div className="flex-1">
             <button
               onClick={prevStep}
-              disabled={currentStep === "mod"}
+              disabled={currentStep === visibleSteps[0]?.id}
               className={`rounded-lg px-6 py-3 font-medium transition-all ${
-                currentStep === "mod"
+                currentStep === visibleSteps[0]?.id
                   ? "invisible"
                   : "bg-gray-200 text-black hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
               }`}
@@ -2842,6 +2917,18 @@ const ProductConfigurator = () => {
               Folyamatkövető
             </h4> */}
             <div className="space-y-4 text-sm">
+              {/* EGYSZERŰSÍTETT MEGRENDELÉS: fix áras eszköz */}
+              <div>
+                <p className="font-medium text-black dark:text-white">Eszköz</p>
+                <p className="text-body">
+                  {FIX_ESZKOZ_NEV} –{" "}
+                  {FIX_ESZKOZ_NETTO_AR.toLocaleString("hu-HU")} Ft + ÁFA / db
+                </p>
+              </div>
+
+              {/* EGYSZERŰSÍTETT MEGRENDELÉS - ideiglenesen kikommentelve:
+                  csomag, szenzorok, burok anyaga, doboz
+
               <div>
                 <p className="font-medium text-black dark:text-white">Csomag</p>
                 <p className="text-body">{selectedPreset?.label ?? "-"}</p>
@@ -2870,18 +2957,22 @@ const ProductConfigurator = () => {
                 <p className="font-medium text-black dark:text-white">Doboz</p>
                 <p className="text-body">{selectedDobozName}</p>
               </div>
+              */}
+
               <div>
                 <p className="font-medium text-black dark:text-white">Színek</p>
                 <p className="text-body">
                   {selectedDobozSzinName} doboz / {selectedTetoSzinName} tető
                 </p>
               </div>
+              {/* EGYSZERŰSÍTETT MEGRENDELÉS - tápellátás ideiglenesen kikommentelve
               <div>
                 <p className="font-medium text-black dark:text-white">
                   Tápellátás
                 </p>
                 <p className="text-body">{selectedTapName}</p>
               </div>
+              */}
               <div>
                 <p className="font-medium text-black dark:text-white">
                   Előfizetés

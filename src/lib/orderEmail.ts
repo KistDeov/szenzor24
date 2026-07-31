@@ -11,6 +11,53 @@ export const sendOrderConfirmationEmail = async (order: OrderPayload) => {
     .map((sz) => `<li>${sz.name} - ${sz.price.toLocaleString("hu-HU")} Ft</li>`)
     .join("");
 
+  // EGYSZERŰSÍTETT MEGRENDELÉS: ha fix áras eszközt küld a frontend (order.eszkoz),
+  // akkor csak az eszközt és a színeket soroljuk fel, az összetevőnkénti bontás
+  // (szenzorok, burkolat, doboz, tápellátás) ideiglenesen ki van kommentelve.
+  const termekReszletek = order.eszkoz
+    ? `
+                    <!-- Eszköz (fix ár) -->
+                    <p style="margin: 0 0 5px 0; color: #4b5563;">
+                      📡 <strong>Eszköz:</strong> ${order.eszkoz.name}
+                      (${order.eszkoz.quantity} db × ${order.eszkoz.price.toLocaleString("hu-HU")} Ft + ÁFA)
+                    </p>
+
+                    <!-- Színek -->
+                    <p style="margin: 0 0 20px 0; color: #4b5563;">
+                      🎨 <strong>Színek:</strong> ${order.colors.dobozSzin.name} doboz / ${order.colors.tetoSzin.name} tető
+                    </p>
+    `
+    : `
+                    <!-- Szenzorok -->
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #1f2937; font-size: 14px; text-transform: uppercase;">
+                      📡 Szenzorok (${order.szenzorok.length} db)
+                    </p>
+                    <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #4b5563;">
+                      ${szenzorokList}
+                    </ul>
+
+                    <!-- Anyag -->
+                    <p style="margin: 0 0 5px 0; color: #4b5563;">
+                      🧱 <strong>Burok anyag:</strong> ${order.anyag.name}
+                      ${order.anyag.price > 0 ? `(+${order.anyag.price.toLocaleString("hu-HU")} Ft)` : "(alap ár)"}
+                    </p>
+
+                    <!-- Doboz -->
+                    <p style="margin: 0 0 5px 0; color: #4b5563;">
+                      📦 <strong>Doboz:</strong> ${order.doboz.name} (${order.doboz.price.toLocaleString("hu-HU")} Ft)
+                    </p>
+
+                    <!-- Színek -->
+                    <p style="margin: 0 0 5px 0; color: #4b5563;">
+                      🎨 <strong>Színek:</strong> ${order.colors.dobozSzin.name} doboz / ${order.colors.tetoSzin.name} tető
+                    </p>
+
+                    <!-- Tápellátás -->
+                    <p style="margin: 0 0 20px 0; color: #4b5563;">
+                      🔌 <strong>Tápellátás:</strong> ${order.tapellatas.name} (${order.tapellatas.price.toLocaleString("hu-HU")} Ft)
+                    </p>
+    `;
+
   const html = `
 <!DOCTYPE html>
 <html lang="hu">
@@ -52,35 +99,8 @@ export const sendOrderConfirmationEmail = async (order: OrderPayload) => {
                 <tr>
                   <td style="padding: 20px;">
                     
-                    <!-- Szenzorok -->
-                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #1f2937; font-size: 14px; text-transform: uppercase;">
-                      📡 Szenzorok (${order.szenzorok.length} db)
-                    </p>
-                    <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #4b5563;">
-                      ${szenzorokList}
-                    </ul>
-                    
-                    <!-- Anyag -->
-                    <p style="margin: 0 0 5px 0; color: #4b5563;">
-                      🧱 <strong>Burok anyag:</strong> ${order.anyag.name} 
-                      ${order.anyag.price > 0 ? `(+${order.anyag.price.toLocaleString("hu-HU")} Ft)` : "(alap ár)"}
-                    </p>
-                    
-                    <!-- Doboz -->
-                    <p style="margin: 0 0 5px 0; color: #4b5563;">
-                      📦 <strong>Doboz:</strong> ${order.doboz.name} (${order.doboz.price.toLocaleString("hu-HU")} Ft)
-                    </p>
-                    
-                    <!-- Színek -->
-                    <p style="margin: 0 0 5px 0; color: #4b5563;">
-                      🎨 <strong>Színek:</strong> ${order.colors.dobozSzin.name} doboz / ${order.colors.tetoSzin.name} tető
-                    </p>
-                    
-                    <!-- Tápellátás -->
-                    <p style="margin: 0 0 20px 0; color: #4b5563;">
-                      🔌 <strong>Tápellátás:</strong> ${order.tapellatas.name} (${order.tapellatas.price.toLocaleString("hu-HU")} Ft)
-                    </p>
-                    
+                    ${termekReszletek}
+
                     <!-- Összegek -->
                     <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 15px 0;">
                     <table style="width: 100%;">

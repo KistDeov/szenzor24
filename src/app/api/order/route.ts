@@ -337,8 +337,29 @@ export async function POST(request: Request) {
           tax_rates: [VAT_TAX_RATE_ID],
         }));
 
+        // EGYSZERŰSÍTETT MEGRENDELÉS: fix áras eszköz (a frontend az "eszkoz"
+        // mezőben küldi, az összetevők 0 Ft-tal érkeznek)
+        const eszkozLineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
+          body.eszkoz
+            ? [
+                {
+                  price_data: {
+                    currency: "huf",
+                    product_data: {
+                      name: body.eszkoz.name,
+                      description: `Eszköz - ${body.colors.dobozSzin.name} doboz / ${body.colors.tetoSzin.name} tető`,
+                    },
+                    unit_amount: body.eszkoz.price * 100,
+                  },
+                  quantity: body.eszkoz.quantity,
+                  tax_rates: [VAT_TAX_RATE_ID],
+                },
+              ]
+            : [];
+
         // Összes line item
         const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+          ...eszkozLineItems,
           ...szenzorLineItems,
           {
             price_data: {
@@ -393,12 +414,18 @@ export async function POST(request: Request) {
           });
         }
 
+        // A 0 Ft-os tételeket nem küldjük ki a Stripe-nak (fix áras eszköz esetén
+        // az összetevők - szenzor, burkolat, doboz, tápellátás - 0 Ft-osak)
+        const billableLineItems = lineItems.filter(
+          (item) => (item.price_data?.unit_amount ?? 0) > 0
+        );
+
         const checkoutSession = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
           mode: "payment",
           currency: "huf",
           customer_email: body.userEmail,
-          line_items: lineItems,
+          line_items: billableLineItems,
 
           metadata: {
             userId: body.userId,
@@ -406,6 +433,7 @@ export async function POST(request: Request) {
             userName: body.userName,
             userPhone: body.userPhone || "",
 
+            eszkoz: body.eszkoz ? JSON.stringify(body.eszkoz) : "",
             szenzorok: JSON.stringify(body.szenzorok),
             anyag: JSON.stringify(body.anyag),
             doboz: JSON.stringify(body.doboz),

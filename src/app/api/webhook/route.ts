@@ -47,6 +47,8 @@ export async function POST(req: Request) {
           locale: "hu-HU",
           payment: { mode: "stripe" },
 
+          // EGYSZERŰSÍTETT MEGRENDELÉS: fix áras eszköz
+          eszkoz: metadata.eszkoz ? JSON.parse(metadata.eszkoz) : null,
           szenzorok: metadata.szenzorok ? JSON.parse(metadata.szenzorok) : [],
           anyag: metadata.anyag ? JSON.parse(metadata.anyag) : null,
           doboz: metadata.doboz ? JSON.parse(metadata.doboz) : null,
