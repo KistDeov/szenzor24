@@ -293,9 +293,16 @@ export async function POST(request: Request) {
     const szenzorokTotal = body.szenzorok.reduce((sum, sz) => sum + sz.price * sz.quantity, 0);
     const anyagTotal = body.anyag.price * body.anyag.quantity;
     const eszkozTotal = body.eszkoz ? body.eszkoz.price * body.eszkoz.quantity : 0;
-    const elofizetesTotal = body.elofizetes
-      ? body.elofizetes.price * body.elofizetes.quantity
-      : 0;
+    // Eszközönként eltérő előfizetés is lehet - ha jött per-unit lista, abból számolunk
+    const elofizetesTotal =
+      body.elofizetesekPerUnit && body.elofizetesekPerUnit.length > 0
+        ? body.elofizetesekPerUnit.reduce(
+            (sum, elo) => sum + elo.price * elo.quantity,
+            0
+          )
+        : body.elofizetes
+          ? body.elofizetes.price * body.elofizetes.quantity
+          : 0;
     const calculatedSubtotal =
       szenzorokTotal +
       anyagTotal +
@@ -304,8 +311,12 @@ export async function POST(request: Request) {
       body.tapellatas.price * body.tapellatas.quantity;
 
     const shippingFee = typeof body.shippingFee === "number" ? body.shippingFee : 0;
-    const vatAmount = Math.round(calculatedSubtotal * (body.vatPercent / 100));
-    const total = calculatedSubtotal + vatAmount + shippingFee + elofizetesTotal;
+    // Az előfizetési díj is NETTÓ, ezért az ÁFA alapja: termékek + előfizetés.
+    // (A szállítási díj ÁFA-mentes.)
+    const vatAmount = Math.round(
+      (calculatedSubtotal + elofizetesTotal) * (body.vatPercent / 100)
+    );
+    const total = calculatedSubtotal + elofizetesTotal + vatAmount + shippingFee;
 
     const orderWithCalculation = {
       ...body,
@@ -399,18 +410,39 @@ export async function POST(request: Request) {
           },
         ];
 
-        // Elofizetes hozzáadása ha van
-        if (body.elofizetes && body.elofizetes.price > 0) {
+        // Elofizetes hozzáadása ha van (eszközönként eltérő csomagok is lehetnek)
+        const elofizetesItems =
+          body.elofizetesekPerUnit && body.elofizetesekPerUnit.length > 0
+            ? Object.values(
+                body.elofizetesekPerUnit.reduce<Record<string, typeof body.elofizetesekPerUnit[number]>>(
+                  (acc, elo) => {
+                    const existing = acc[elo.id];
+                    acc[elo.id] = existing
+                      ? { ...existing, quantity: existing.quantity + elo.quantity }
+                      : { ...elo };
+                    return acc;
+                  },
+                  {}
+                )
+              )
+            : body.elofizetes
+              ? [body.elofizetes]
+              : [];
+
+        for (const elo of elofizetesItems) {
+          if (elo.price <= 0) continue;
           lineItems.push({
             price_data: {
               currency: "huf",
               product_data: {
-                name: body.elofizetes.name,
+                name: elo.name,
                 description: "Előfizetés",
               },
-              unit_amount: body.elofizetes.price * 100,
+              unit_amount: elo.price * 100,
             },
-            quantity: body.elofizetes.quantity,
+            quantity: elo.quantity,
+            // Az előfizetés ára is nettó, rá is jár az ÁFA
+            tax_rates: [VAT_TAX_RATE_ID],
           });
         }
 
@@ -440,6 +472,9 @@ export async function POST(request: Request) {
             colors: JSON.stringify(body.colors),
             tapellatas: JSON.stringify(body.tapellatas),
             elofizetes: body.elofizetes ? JSON.stringify(body.elofizetes) : "",
+            elofizetesekPerUnit: body.elofizetesekPerUnit
+              ? JSON.stringify(body.elofizetesekPerUnit)
+              : "",
             shipping: JSON.stringify(body.shipping),
             
             subtotal: calculatedSubtotal.toString(),

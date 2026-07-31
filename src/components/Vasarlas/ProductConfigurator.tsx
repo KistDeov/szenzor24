@@ -940,13 +940,18 @@ const ProductConfigurator = () => {
   const getShippingFee = () =>
     selection.shippingMode ? SZALLITASI_ARAK[selection.shippingMode] : 0;
 
-  const calculateVatAmount = (subtotal: number) =>
-    Math.round(subtotal * (VAT_PERCENT / 100));
+  const calculateVatAmount = (netAmount: number) =>
+    Math.round(netAmount * (VAT_PERCENT / 100));
+
+  // Az előfizetési díj is NETTÓ ár, ezért az ÁFA alapja: eszköz + előfizetés.
+  // (A szállítási díj ÁFA-mentes.)
+  const calculateVatBase = () => calculateSubtotal() + calculateSubscriptionFee();
 
   const calculateGrandTotal = () => {
     const subtotal = calculateSubtotal();
-    const vatAmount = calculateVatAmount(subtotal);
-    return subtotal + vatAmount + getShippingFee() + calculateSubscriptionFee();
+    const subscriptionFee = calculateSubscriptionFee();
+    const vatAmount = calculateVatAmount(subtotal + subscriptionFee);
+    return subtotal + subscriptionFee + vatAmount + getShippingFee();
   };
 
   const isAddressComplete = (address: Selection["shippingAddress"]) =>
@@ -1262,9 +1267,10 @@ const ProductConfigurator = () => {
     const subtotal = calculateSubtotal();
     const subscriptionFee = calculateSubscriptionFee();
     const vatPercent = VAT_PERCENT;
-    const vatAmount = calculateVatAmount(subtotal);
+    // ÁFA alapja: eszköz + előfizetés (mindkettő nettó), a szállítás ÁFA-mentes
+    const vatAmount = calculateVatAmount(subtotal + subscriptionFee);
     const shippingFee = getShippingFee();
-    const total = subtotal + vatAmount + shippingFee + subscriptionFee;
+    const total = subtotal + subscriptionFee + vatAmount + shippingFee;
 
     const resolvedUserName = isGuestCheckout
       ? selection.guestContact.name.trim()
@@ -1940,7 +1946,7 @@ const ProductConfigurator = () => {
                   <p className="text-orange-500 text-xl font-bold">
                     {plan.price === 0
                       ? "0 Ft"
-                      : `${plan.price.toLocaleString("hu-HU")} Ft`}
+                      : `${plan.price.toLocaleString("hu-HU")} Ft + ÁFA`}
                   </p>
                 </button>
               ))}
@@ -2319,10 +2325,11 @@ const ProductConfigurator = () => {
           0,
         );
         const subtotal = calculateSubtotal();
-        const vatAmount = calculateVatAmount(subtotal);
         const shippingFee = getShippingFee();
         const subscriptionFee = calculateSubscriptionFee();
-        const total = subtotal + vatAmount + shippingFee + subscriptionFee;
+        // ÁFA alapja: eszköz + előfizetés (mindkettő nettó)
+        const vatAmount = calculateVatAmount(subtotal + subscriptionFee);
+        const total = subtotal + subscriptionFee + vatAmount + shippingFee;
 
         return (
           <div className="mx-auto max-w-2xl">
@@ -2505,7 +2512,7 @@ const ProductConfigurator = () => {
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t border-dashed border-gray-300 pt-2 dark:border-gray-600">
                     <p className="text-body text-sm">
-                      Előfizetési díj összesen:
+                      Előfizetési díj összesen (nettó):
                     </p>
                     <p className="text-orange-500 font-semibold">
                       {calculateSubscriptionFee().toLocaleString("hu-HU")} Ft
@@ -2650,9 +2657,21 @@ const ProductConfigurator = () => {
 
                 <div className="border-stroke dark:border-stroke-dark space-y-2 border-t pt-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-body text-sm">Nettó összeg:</p>
+                    <p className="text-body text-sm">Eszköz (nettó):</p>
                     <p className="font-semibold text-black dark:text-white">
                       {subtotal.toLocaleString("hu-HU")} Ft
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-body text-sm">Előfizetés (nettó):</p>
+                    <p className="font-semibold text-black dark:text-white">
+                      {subscriptionFee.toLocaleString("hu-HU")} Ft
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-body text-sm">Nettó összeg:</p>
+                    <p className="font-semibold text-black dark:text-white">
+                      {(subtotal + subscriptionFee).toLocaleString("hu-HU")} Ft
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
@@ -2665,14 +2684,6 @@ const ProductConfigurator = () => {
                     <p className="text-body text-sm">Szállítás (ÁFA-mentes):</p>
                     <p className="font-semibold text-black dark:text-white">
                       {shippingFee.toLocaleString("hu-HU")} Ft
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-body text-sm">
-                      Előfizetés (ÁFA-t tartalmaz):
-                    </p>
-                    <p className="font-semibold text-black dark:text-white">
-                      {subscriptionFee.toLocaleString("hu-HU")} Ft
                     </p>
                   </div>
                   <div className="flex items-center justify-between pt-2">

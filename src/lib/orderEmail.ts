@@ -11,6 +11,17 @@ export const sendOrderConfirmationEmail = async (order: OrderPayload) => {
     .map((sz) => `<li>${sz.name} - ${sz.price.toLocaleString("hu-HU")} Ft</li>`)
     .join("");
 
+  // Az előfizetési díj NETTÓ ár, az ÁFA az összesítésben jön rá
+  const elofizetesTotal =
+    order.elofizetesekPerUnit && order.elofizetesekPerUnit.length > 0
+      ? order.elofizetesekPerUnit.reduce(
+          (sum, elo) => sum + elo.price * elo.quantity,
+          0,
+        )
+      : order.elofizetes
+        ? order.elofizetes.price * order.elofizetes.quantity
+        : 0;
+
   // EGYSZERŰSÍTETT MEGRENDELÉS: ha fix áras eszközt küld a frontend (order.eszkoz),
   // akkor csak az eszközt és a színeket soroljuk fel, az összetevőnkénti bontás
   // (szenzorok, burkolat, doboz, tápellátás) ideiglenesen ki van kommentelve.
@@ -105,9 +116,17 @@ export const sendOrderConfirmationEmail = async (order: OrderPayload) => {
                     <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 15px 0;">
                     <table style="width: 100%;">
                       <tr>
-                        <td style="color: #6b7280; padding: 5px 0;">Nettó összeg:</td>
+                        <td style="color: #6b7280; padding: 5px 0;">Termékek (nettó):</td>
                         <td style="text-align: right; color: #1f2937; font-weight: 500;">${order.subtotal.toLocaleString("hu-HU")} Ft</td>
                       </tr>
+                      ${
+                        elofizetesTotal > 0
+                          ? `<tr>
+                        <td style="color: #6b7280; padding: 5px 0;">Előfizetés (nettó):</td>
+                        <td style="text-align: right; color: #1f2937; font-weight: 500;">${elofizetesTotal.toLocaleString("hu-HU")} Ft</td>
+                      </tr>`
+                          : ""
+                      }
                       <tr>
                         <td style="color: #6b7280; padding: 5px 0;">ÁFA (${order.vatPercent}%):</td>
                         <td style="text-align: right; color: #1f2937; font-weight: 500;">${order.vatAmount.toLocaleString("hu-HU")} Ft</td>

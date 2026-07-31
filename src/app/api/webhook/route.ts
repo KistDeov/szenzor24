@@ -55,6 +55,9 @@ export async function POST(req: Request) {
           colors: metadata.colors ? JSON.parse(metadata.colors) : null,
           tapellatas: metadata.tapellatas ? JSON.parse(metadata.tapellatas) : null,
           elofizetes: metadata.elofizetes ? JSON.parse(metadata.elofizetes) : null,
+          elofizetesekPerUnit: metadata.elofizetesekPerUnit
+            ? JSON.parse(metadata.elofizetesekPerUnit)
+            : [],
           shipping: metadata.shipping ? JSON.parse(metadata.shipping) : null,
 
           subtotal: parseInt(metadata.subtotal || "0"),
