@@ -280,6 +280,11 @@ const fizetesiModok = [
     name: "Utalás",
     description: "Díjbekérő / előre utalás",
   },
+  {
+    id: "stripe",
+    name: "Bankkártyás fizetés",
+    description: "Stripe",
+  },
 ] as const;
 
 const elofizetesek = [
