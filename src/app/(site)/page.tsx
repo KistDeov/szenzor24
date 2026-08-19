@@ -17,7 +17,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Szenzor24",
   description:
-    "AI által vezérelt automata levelező program"
+    "Hőmérséklet, páratartalom, légnyomás és egyéb környezeti adatok valós idejű monitorozása és riasztása. Szenzor24 - a megbízható megoldás az otthoni és ipari környezetekhez.",
 };
 
 export default function Home() {
